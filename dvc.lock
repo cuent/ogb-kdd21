@@ -8,6 +8,6 @@ stages:
       size: 513
     outs:
     - path: data/dataset/
-      md5: 8002c648583fb1a6615ef1ae972862b3.dir
-      size: 8538784643
+      md5: 4a50c6545464f8a04bfcc49d2a660d25.dir
+      size: 8538784731
       nfiles: 6

@@ -1,0 +1,11 @@
+# PyTorch Geometric
+--find-links https://download.pytorch.org/whl/cu102/torch_stable.html
+--find-links https://pytorch-geometric.com/whl/torch-1.7.0+cu102.html
+
+torch==1.7.0
+torch-scatter==2.0.5
+torch-sparse==0.6.8
+torch-cluster==1.5.8
+torch-spline-conv==1.2.0
+torch-geometric==1.6.3
+

@@ -12,6 +12,7 @@ fi
 docker run --detach \
            --name "ogb-lsc-$(whoami)" \
 	   --volume "${HOME}/ogb-kdd21:/app" \
+	   --volume "${HOME}/.config/gcloud:/root/.config/gcloud" \
 	   --gpus "device=${GPU}" \
 	   --ipc=host \
 	   --publish "${JUPYTER_PORT}:8888" \

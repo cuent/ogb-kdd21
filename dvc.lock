@@ -1,0 +1,13 @@
+schema: '2.0'
+stages:
+  preprocess_dataset:
+    cmd: PYTHONPATH=. python3 experiments/scripts/preprocess_dataset.py
+    deps:
+    - path: experiments/scripts/preprocess_dataset.py
+      md5: 7bbbcc5122b7b863cc45c91b8b7b494e
+      size: 513
+    outs:
+    - path: data/dataset/
+      md5: 8002c648583fb1a6615ef1ae972862b3.dir
+      size: 8538784643
+      nfiles: 6

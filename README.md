@@ -27,6 +27,9 @@ pip install -r requirements.txt -r requirements-gpu.txt
 TODO
 
 **DVC stuff**
-- load environmental variables (`source ./load-env.sh`)
+- tell DVC where how to authenticate to Google Cloud Storage
+```bash
+export GOOGLE_APPLICATION_CREDENTIALS=~/.config/gcloud/legacy_credentials/<your email address>/adc.json
+```
 - pull all files from the MinIO remote (`dvc pull`) 
 

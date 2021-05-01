@@ -1,0 +1,8 @@
+stages:
+  preprocess_dataset:
+    wdir: .
+    cmd: PYTHONPATH=. python3 experiments/scripts/preprocess_dataset.py
+    deps:
+      - experiments/scripts/preprocess_dataset.py
+    outs:
+      - data/dataset/

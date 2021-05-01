@@ -14,6 +14,6 @@ docker run --detach \
 	   --volume "${HOME}/ogb-kdd21:/app" \
 	   --gpus "device=${GPU}" \
 	   --ipc=host \
-	   --port "${JUPYTER_PORT}:8888" \
-	   --port "${TENSORBOARD_PORT}:6006" \
+	   --publish "${JUPYTER_PORT}:8888" \
+	   --publish "${TENSORBOARD_PORT}:6006" \
 	   ogblsc:latest /bin/bash -c "trap : TERM INT; sleep infinity & wait"

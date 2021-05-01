@@ -1,5 +1,5 @@
 [core]
     remote = gcloud
-['remote "gclou"']
-    url = gs://ogb-lsc/dvc
+['remote "gcloud"']
+    url = gs://ogb-lsc/dvc/
     projectname = ogb-team

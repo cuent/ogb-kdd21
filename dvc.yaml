@@ -30,3 +30,19 @@ stages:
             cache: false
       outs:
         - data/supervised/${item}/
+
+  train_gae:
+    wdir: .
+    cmd: PYTHONPATH=. python3 experiments/scripts/train_unsupervised.py gae
+    params:
+      - gae
+    metrics:
+      - data/metrics/gae.json
+    deps:
+      - experiments/scripts/train_unsupervised.py
+      - src/models/gae.py
+      - data/dataset/
+    outs:
+      - data/logs/gae/
+      - data/checkpoints/gae/
+      - data/submissions/gae/

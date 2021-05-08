@@ -50,3 +50,36 @@ stages:
       md5: 1b0b549409741e30d256b001650e194f.dir
       size: 94434306
       nfiles: 3
+  train_gae:
+    cmd: PYTHONPATH=. python3 experiments/scripts/train_unsupervised.py gae
+    deps:
+    - path: data/dataset/
+      md5: 4a50c6545464f8a04bfcc49d2a660d25.dir
+      size: 8538784731
+      nfiles: 6
+    - path: experiments/scripts/train_unsupervised.py
+      md5: 718552683bf3db540d4b4318d3b5608b
+      size: 7230
+    - path: src/models/gae.py
+      md5: 559dde28cad802f222cb30561e8d647a
+      size: 6663
+    params:
+      params.yaml:
+        gae:
+          num_layers: 3
+          emb_dim: 600
+          batch_size: 256
+          epochs: 15
+    outs:
+    - path: data/checkpoints/gae/
+      md5: 458316bb1c3207d6b8e9e50d80e9c0e4.dir
+      size: 16092025
+      nfiles: 1
+    - path: data/logs/gae/
+      md5: 403ab99d1480ae99863b9d3a42ef7746.dir
+      size: 2215
+      nfiles: 1
+    - path: data/submissions/gae/
+      md5: b3a80c7cf68709b318deca7dde69fda5.dir
+      size: 1279404
+      nfiles: 1

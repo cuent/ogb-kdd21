@@ -4,8 +4,8 @@ stages:
     cmd: PYTHONPATH=. python3 experiments/scripts/preprocess_dataset.py
     deps:
     - path: experiments/scripts/preprocess_dataset.py
-      md5: 7bbbcc5122b7b863cc45c91b8b7b494e
-      size: 513
+      md5: 5c102872a2a53f5aa1293c510024a186
+      size: 110
     outs:
     - path: data/dataset/
       md5: 4a50c6545464f8a04bfcc49d2a660d25.dir

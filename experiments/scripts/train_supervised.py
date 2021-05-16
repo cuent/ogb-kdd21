@@ -12,6 +12,7 @@ from torch.optim.lr_scheduler import StepLR
 from tqdm import tqdm
 
 from src.dataset import load_dataset
+from src.models.diffpool import DiffPoolGNN
 from src.models.gnn import GNN
 from src.models.bayesian_gnn import BayesianGNN
 
@@ -176,6 +177,8 @@ def get_model(args, device):
         model = GNN(gnn_type='gcn', virtual_node=True, **shared_params)
     elif args.gnn == 'gin-virtual-bnn':
         model = BayesianGNN(gnn_type='gin', virtual_node=True, **shared_params)
+    elif args.gnn == 'diffpool':
+        model = DiffPoolGNN(gnn_type='gin', virtual_node=True, **shared_params)
     else:
         raise ValueError('Invalid GNN type')
 

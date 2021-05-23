@@ -94,7 +94,7 @@ def main(
         )
     else:
         train_loader, valid_loader, test_loader = get_dgl_dataloaders(
-            dataset=dataset, **cfg["data_loader_args"]
+            dataset=dataset, num_workers=num_workers, **cfg["data_loader_args"]
         )
 
     if checkpoint_dir != "":

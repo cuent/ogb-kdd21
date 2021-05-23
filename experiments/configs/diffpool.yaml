@@ -12,7 +12,6 @@ step_lr:
   gamma: 0.25
 
 data_loader_args:
-  train_subset: True
   batch_size: 256
 
 reg: torch.nn.L1Loss

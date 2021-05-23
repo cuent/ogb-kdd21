@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 from src.conv.diffpool import DiffPoolBatchedGraphLayer
-from gnn import GNN
+from src.models.gnn import GNN
 from src.conv.graphsage import BatchedGraphSAGE
 from src.utils import batch2tensor
 import torch.nn.functional as F

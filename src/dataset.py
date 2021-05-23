@@ -1,6 +1,7 @@
 import os
 from typing import Callable, Optional
 
+import dgl
 import torch
 from ogb.lsc import PygPCQM4MDataset
 from torch_geometric.data import DataLoader
@@ -15,6 +16,14 @@ def load_dataset(smiles2graph_fn: Optional[Callable] = None):
     )
 
 
+def collate_dgl(samples):
+    graphs, labels = map(list, zip(*samples))
+    batched_graph = dgl.batch(graphs)
+    labels = torch.stack(labels)
+
+    return batched_graph, labels
+
+
 def get_data_loaders(
     dataset: PygPCQM4MDataset,
     split_idx: dict,
@@ -22,6 +31,7 @@ def get_data_loaders(
     num_workers: int,
     train_subset: bool,
     save_test_dir: str,
+    collate_fn: Optional[Callable] = None
 ):
     loader_kws = dict(
         batch_size=batch_size,
@@ -40,11 +50,13 @@ def get_data_loaders(
     train_loader = DataLoader(
         dataset=dataset[train_idx],
         shuffle=True,
+        collate_fn=collate_fn,
         **loader_kws,
     )
     valid_loader = DataLoader(
         dataset=dataset[split_idx["valid"]],
         shuffle=False,
+        collate_fn=collate_fn,
         **loader_kws,
     )
 
@@ -52,6 +64,7 @@ def get_data_loaders(
         test_loader = DataLoader(
             dataset=dataset[split_idx["test"]],
             shuffle=False,
+            collate_fn=collate_fn,
             **loader_kws,
         )
     else:

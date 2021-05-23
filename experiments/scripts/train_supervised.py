@@ -12,7 +12,7 @@ from torch.optim.lr_scheduler import StepLR
 from torch.utils.tensorboard import SummaryWriter
 
 import src.utils
-from src.dataset import load_dataset, get_data_loaders
+from src.dataset import load_dataset, get_data_loaders, collate_dgl
 from src.models.bayesian_gnn import BayesianGNN
 from src.models.diffpool import DiffPoolGNN
 from src.models.gnn import GNN
@@ -85,10 +85,9 @@ def main(
         split_idx=split_idx,
         num_workers=num_workers,
         save_test_dir=save_test_dir,
+        collate_fn=collate_dgl if model_name=="diffpool" else None,
         **cfg["data_loader_args"],
     )
-
-    breakpoint()
 
     if checkpoint_dir != "":
         os.makedirs(checkpoint_dir, exist_ok=True)

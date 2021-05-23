@@ -24,6 +24,41 @@ def collate_dgl(samples):
     return batched_graph, labels
 
 
+def get_dgl_dataloaders(
+    dataset: PygPCQM4MDataset,
+    batch_size: int,
+    num_workers: int,
+):
+    split_idx = dataset.get_idx_split()
+    split_idx["train"] = split_idx["train"].type(torch.LongTensor)
+    split_idx["test"] = split_idx["test"].type(torch.LongTensor)
+    split_idx["valid"] = split_idx["valid"].type(torch.LongTensor)
+
+    train_loader = torch.utils.data.DataLoader(
+        dataset[split_idx["train"]],
+        batch_size=batch_size,
+        shuffle=True,
+        num_workers=num_workers,
+        collate_fn=collate_dgl,
+    )
+    valid_loader = torch.utils.data.DataLoader(
+        dataset[split_idx["valid"]],
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=num_workers,
+        collate_fn=collate_dgl,
+    )
+    test_loader = torch.utils.data.DataLoader(
+        dataset[split_idx["test"]],
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=num_workers,
+        collate_fn=collate_dgl,
+    )
+
+    return train_loader, valid_loader, test_loader
+
+
 def get_data_loaders(
     dataset: PygPCQM4MDataset,
     split_idx: dict,
@@ -31,7 +66,6 @@ def get_data_loaders(
     num_workers: int,
     train_subset: bool,
     save_test_dir: str,
-    collate_fn: Optional[Callable] = None
 ):
     loader_kws = dict(
         batch_size=batch_size,
@@ -50,13 +84,11 @@ def get_data_loaders(
     train_loader = DataLoader(
         dataset=dataset[train_idx],
         shuffle=True,
-        collate_fn=collate_fn,
         **loader_kws,
     )
     valid_loader = DataLoader(
         dataset=dataset[split_idx["valid"]],
         shuffle=False,
-        collate_fn=collate_fn,
         **loader_kws,
     )
 
@@ -64,7 +96,6 @@ def get_data_loaders(
         test_loader = DataLoader(
             dataset=dataset[split_idx["test"]],
             shuffle=False,
-            collate_fn=collate_fn,
             **loader_kws,
         )
     else:

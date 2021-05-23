@@ -1,3 +1,6 @@
+import importlib
+from typing import Any
+
 import torch as th
 
 
@@ -19,3 +22,9 @@ def batch2tensor(batch_adj, batch_feat, node_per_pool_graph):
     feat = th.cat(feat_list, dim=0)
 
     return feat, adj
+
+
+def get_module_from_str(module: str) -> Any:
+    module, cls = module.rsplit(".", maxsplit=1)
+    cls = getattr(importlib.import_module(module), cls)
+    return cls

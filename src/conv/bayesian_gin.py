@@ -8,19 +8,27 @@ import torchbnn as bnn
 
 class BayesianGINConv(MessagePassing):
     def __init__(self, emb_dim):
-        '''
-            emb_dim (int): node embedding dimensionality
-        '''
+        """
+        emb_dim (int): node embedding dimensionality
+        """
 
         super(BayesianGINConv, self).__init__(aggr="add")
 
         self.mlp = torch.nn.Sequential(
-            bnn.BayesLinear(prior_mu=0, prior_sigma=0.1, in_features=emb_dim,
-                            out_features=emb_dim),
+            bnn.BayesLinear(
+                prior_mu=0,
+                prior_sigma=0.1,
+                in_features=emb_dim,
+                out_features=emb_dim,
+            ),
             torch.nn.BatchNorm1d(emb_dim),
             torch.nn.ReLU(),
-            bnn.BayesLinear(prior_mu=0, prior_sigma=0.1, in_features=emb_dim,
-                            out_features=emb_dim)
+            bnn.BayesLinear(
+                prior_mu=0,
+                prior_sigma=0.1,
+                in_features=emb_dim,
+                out_features=emb_dim,
+            ),
         )
         self.eps = torch.nn.Parameter(torch.Tensor([0]))
 
@@ -28,8 +36,10 @@ class BayesianGINConv(MessagePassing):
 
     def forward(self, x, edge_index, edge_attr):
         edge_embedding = self.bond_encoder(edge_attr)
-        out = self.mlp((1 + self.eps) * x + self.propagate(edge_index, x=x,
-                                                           edge_attr=edge_embedding))
+        out = self.mlp(
+            (1 + self.eps) * x
+            + self.propagate(edge_index, x=x, edge_attr=edge_embedding)
+        )
 
         return out
 

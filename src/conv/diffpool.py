@@ -37,7 +37,7 @@ class BatchedDiffPool(nn.Module):
         z_l = self.embed(x, adj)
         s_l = self.assign(x, adj)
         if log:
-            self.log['s'] = s_l.cpu().numpy()
+            self.log["s"] = s_l.cpu().numpy()
         xnext = torch.matmul(s_l.transpose(-1, -2), z_l)
         anext = (s_l.transpose(-1, -2)).matmul(adj).matmul(s_l)
 
@@ -45,14 +45,21 @@ class BatchedDiffPool(nn.Module):
             loss_name = str(type(loss_layer).__name__)
             self.loss_log[loss_name] = loss_layer(adj, anext, s_l)
         if log:
-            self.log['a'] = anext.cpu().numpy()
+            self.log["a"] = anext.cpu().numpy()
         return xnext, anext
 
 
 class DiffPoolBatchedGraphLayer(nn.Module):
-
-    def __init__(self, input_dim, assign_dim, output_feat_dim,
-                 activation, dropout, aggregator_type, link_pred):
+    def __init__(
+        self,
+        input_dim,
+        assign_dim,
+        output_feat_dim,
+        activation,
+        dropout,
+        aggregator_type,
+        link_pred,
+    ):
         super(DiffPoolBatchedGraphLayer, self).__init__()
         self.embedding_dim = input_dim
         self.assign_dim = assign_dim
@@ -60,18 +67,12 @@ class DiffPoolBatchedGraphLayer(nn.Module):
         self.link_pred = link_pred
 
         self.feat_gc = GraphSageLayer(
-            input_dim,
-            output_feat_dim,
-            activation,
-            dropout,
-            aggregator_type)
+            input_dim, output_feat_dim, activation, dropout, aggregator_type
+        )
 
         self.pool_gc = GraphSageLayer(
-            input_dim,
-            assign_dim,
-            activation,
-            dropout,
-            aggregator_type)
+            input_dim, assign_dim, activation, dropout, aggregator_type
+        )
 
         self.reg_loss = nn.ModuleList([])
         self.loss_log = {}
@@ -79,16 +80,19 @@ class DiffPoolBatchedGraphLayer(nn.Module):
 
     def forward(self, g, h):
         #         print("DiffPoolBatchedGraphLayer forward")
-        feat = self.feat_gc(g,
-                            h)  # size = (sum_N, F_out), sum_N is num of nodes in this batch
+        feat = self.feat_gc(
+            g, h
+        )  # size = (sum_N, F_out), sum_N is num of nodes in this batch
         #         print(feat.shape)
         device = feat.device
-        assign_tensor = self.pool_gc(g,
-                                     h)  # size = (sum_N, N_a), N_a is num of nodes in pooled graph.
+        assign_tensor = self.pool_gc(
+            g, h
+        )  # size = (sum_N, N_a), N_a is num of nodes in pooled graph.
         assign_tensor = F.softmax(assign_tensor, dim=1)
         assign_tensor = torch.split(assign_tensor, g.batch_num_nodes().tolist())
         assign_tensor = torch.block_diag(
-            *assign_tensor)  # size = (sum_N, batch_size * N_a)
+            *assign_tensor
+        )  # size = (sum_N, batch_size * N_a)
 
         h = torch.matmul(torch.t(assign_tensor), feat)
         adj = g.adjacency_matrix(transpose=False, ctx=device)
@@ -96,11 +100,10 @@ class DiffPoolBatchedGraphLayer(nn.Module):
         adj_new = torch.mm(torch.t(assign_tensor), adj_new)
 
         if self.link_pred:
-            current_lp_loss = torch.norm(adj.to_dense() -
-                                         torch.mm(assign_tensor, torch.t(
-                                             assign_tensor))) / np.power(
-                g.number_of_nodes(), 2)
-            self.loss_log['LinkPredLoss'] = current_lp_loss
+            current_lp_loss = torch.norm(
+                adj.to_dense() - torch.mm(assign_tensor, torch.t(assign_tensor))
+            ) / np.power(g.number_of_nodes(), 2)
+            self.loss_log["LinkPredLoss"] = current_lp_loss
 
         for loss_layer in self.reg_loss:
             loss_name = str(type(loss_layer).__name__)

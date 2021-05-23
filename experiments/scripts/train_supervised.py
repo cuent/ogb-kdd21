@@ -17,7 +17,7 @@ from src.models.bayesian_gnn import BayesianGNN
 from src.models.diffpool import DiffPoolGNN
 from src.models.gnn import GNN
 from src.training import train, eval, test
-
+from src.smiles import Smiles2GraphOGBConverter
 
 app = typer.Typer()
 
@@ -52,7 +52,7 @@ def setup_seed() -> None:
 
 
 def main(
-    model: str = typer.Option(..., help="Model name"),
+    model_name: str = typer.Option(..., help="Model name"),
     config_path: str = typer.Option(..., help="Config path"),
     device: int = typer.Option(0, help="which gpu to use if any (default: 0)"),
     num_workers: int = typer.Option(0, help="number of workers (default: 0)"),
@@ -72,7 +72,9 @@ def main(
     )
 
     # Automatic dataloading and splitting
-    dataset = load_dataset()
+    smiles2graph = Smiles2GraphOGBConverter()
+    dataset = load_dataset(smiles2graph)
+
     split_idx = dataset.get_idx_split()
 
     # automatic evaluator. takes dataset name as input
@@ -86,10 +88,12 @@ def main(
         **cfg["data_loader_args"],
     )
 
+    breakpoint()
+
     if checkpoint_dir != "":
         os.makedirs(checkpoint_dir, exist_ok=True)
 
-    model = get_model(model, model_args=cfg["args"], device=device)
+    model = get_model(model_name, model_args=cfg["args"], device=device)
 
     num_params = sum(p.numel() for p in model.parameters())
     print(f"#Params: {num_params}")
@@ -104,7 +108,7 @@ def main(
     best_valid_mae = 1000
 
     epochs = cfg["learning_args"]["epochs"]
-    reg = src.get_module_from_str(cfg["reg"])()
+    reg = src.utils.get_module_from_str(cfg["reg"])()
     for epoch in range(1, epochs + 1):
         print("=====Epoch {}".format(epoch))
         print("Training...")
@@ -113,7 +117,7 @@ def main(
             device,
             train_loader,
             optimizer,
-            gnn_name=model,
+            gnn_name=model_name,
             reg_criterion=reg,
         )
 

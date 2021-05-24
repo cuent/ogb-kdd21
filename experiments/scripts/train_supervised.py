@@ -77,7 +77,9 @@ def main(
 
     # Automatic dataloading and splitting
     smiles2graph = Smiles2GraphOGBConverter()
-    dataset = load_dataset(smiles2graph)
+
+    dataset_cls = src.utils.get_module_from_str(cfg["dataset"])
+    dataset = load_dataset(dataset_cls, smiles2graph)
 
     split_idx = dataset.get_idx_split()
 

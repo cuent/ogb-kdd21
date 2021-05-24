@@ -3,14 +3,17 @@ from typing import Callable, Optional
 
 import dgl
 import torch
-from ogb.lsc import PygPCQM4MDataset
+from ogb.lsc import PygPCQM4MDataset, DglPCQM4MDataset
 from torch_geometric.data import DataLoader
 
 from src import DATA_DIR
 
 
-def load_dataset(smiles2graph_fn: Optional[Callable] = None):
-    return PygPCQM4MDataset(
+def load_dataset(
+    loader: Callable = PygPCQM4MDataset,
+    smiles2graph_fn: Optional[Callable] = None,
+):
+    return loader(
         root=os.path.join(DATA_DIR, "dataset"),
         smiles2graph=smiles2graph_fn,
     )
@@ -25,7 +28,7 @@ def collate_dgl(samples):
 
 
 def get_dgl_dataloaders(
-    dataset: PygPCQM4MDataset,
+    dataset: DglPCQM4MDataset,
     batch_size: int,
     num_workers: int,
 ):

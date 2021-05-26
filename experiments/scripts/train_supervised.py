@@ -20,8 +20,10 @@ from src.dataset import (
 from src.models.bayesian_gnn import BayesianGNN
 from src.models.diffpool import DiffPoolGNN
 from src.models.gnn import GNN
-from src.training import train, eval, test
+from src.training.pyg import pyg_train, pyg_eval, pyg_test
+from src.training.dgl_training import dgl_train, dgl_eval, dgl_test
 from src.smiles import Smiles2GraphOGBConverter
+from src.training.trainer import trainer
 
 app = typer.Typer()
 
@@ -104,9 +106,6 @@ def main(
 
     model = get_model(model_name, model_args=cfg["args"], device=device)
 
-    num_params = sum(p.numel() for p in model.parameters())
-    print(f"#Params: {num_params}")
-
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     scheduler = StepLR(optimizer, **cfg["step_lr"])
 
@@ -114,61 +113,28 @@ def main(
     if log_dir != "":
         writer = SummaryWriter(log_dir=log_dir)
 
-    best_valid_mae = 1000
-
     epochs = cfg["learning_args"]["epochs"]
     reg = src.utils.get_module_from_str(cfg["reg"])()
-    for epoch in range(1, epochs + 1):
-        print("=====Epoch {}".format(epoch))
-        print("Training...")
-        train_mae = train(
-            model,
-            device,
-            train_loader,
-            optimizer,
-            gnn_name=model_name,
-            reg_criterion=reg,
-        )
 
-        print("Evaluating...")
-        valid_mae = eval(model, device, valid_loader, evaluator)
-
-        print({"Train": train_mae, "Validation": valid_mae})
-
-        if writer:
-            writer.add_scalar("valid/mae", valid_mae, epoch)
-            writer.add_scalar("train/mae", train_mae, epoch)
-
-        if valid_mae < best_valid_mae:
-            best_valid_mae = valid_mae
-            if checkpoint_dir != "":
-                print("Saving checkpoint...")
-                checkpoint = {
-                    "epoch": epoch,
-                    "model_state_dict": model.state_dict(),
-                    "optimizer_state_dict": optimizer.state_dict(),
-                    "scheduler_state_dict": scheduler.state_dict(),
-                    "best_val_mae": best_valid_mae,
-                    "num_params": num_params,
-                }
-                torch.save(
-                    checkpoint,
-                    os.path.join(checkpoint_dir, "checkpoint.pt"),
-                )
-
-            if save_test_dir != "":
-                print("Predicting on test data...")
-                y_pred = test(model, device, test_loader)
-                print("Saving test submission file...")
-                evaluator.save_test_submission(
-                    {"y_pred": y_pred}, save_test_dir
-                )
-
-        scheduler.step()
-        print(f"Best validation MAE so far: {best_valid_mae}")
-
-    if writer:
-        writer.close()
+    trainer(
+        model=model,
+        model_name=model_name,
+        train_fn=pyg_train if model_name != "diffpool" else dgl_train,
+        eval_fn=pyg_eval if model_name != "diffpool" else dgl_eval,
+        test_fn=pyg_test if model_name != "diffpool" else dgl_test,
+        evaluator=evaluator,
+        train_loader=train_loader,
+        test_loader=test_loader,
+        valid_loader=valid_loader,
+        epochs=epochs,
+        optimizer=optimizer,
+        scheduler=scheduler,
+        reg=reg,
+        device=device,
+        writer=writer,
+        checkpoint_dir=checkpoint_dir,
+        save_test_dir=save_test_dir,
+    )
 
 
 if __name__ == "__main__":

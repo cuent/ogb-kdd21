@@ -4,7 +4,9 @@ import torch
 from tqdm.auto import tqdm
 
 
-def train(model, device, loader, optimizer, gnn_name, reg_criterion: Callable):
+def pyg_train(
+    model, device, loader, optimizer, gnn_name, reg_criterion: Callable
+):
     model.train()
     loss_accum = 0
 
@@ -29,7 +31,7 @@ def train(model, device, loader, optimizer, gnn_name, reg_criterion: Callable):
     return loss_accum / (step + 1)
 
 
-def eval(model, device, loader, evaluator):
+def pyg_eval(model, device, loader, evaluator):
     model.eval()
     y_true = []
     y_pred = []
@@ -50,10 +52,10 @@ def eval(model, device, loader, evaluator):
 
     input_dict = {"y_true": y_true, "y_pred": y_pred}
 
-    return evaluator.eval(input_dict)["mae"]
+    return evaluator.pyg_eval(input_dict)["mae"]
 
 
-def test(model, device, loader):
+def pyg_test(model, device, loader):
     model.eval()
     y_pred = []
 

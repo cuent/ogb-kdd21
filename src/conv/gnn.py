@@ -165,12 +165,15 @@ class GNN_node_Virtualnode(torch.nn.Module):
             )
 
     def forward(self, batched_data):
-        x, edge_index, edge_attr, batch = (
-            batched_data.x,
-            batched_data.edge_index,
-            batched_data.edge_attr,
-            batched_data.batch,
-        )
+        if isinstance(batched_data, torch_geometric.data.batch.Batch):
+            x, edge_index, edge_attr, batch = (
+                batched_data.x,
+                batched_data.edge_index,
+                batched_data.edge_attr,
+                batched_data.batch,
+            )
+        else:
+            x, edge_index, edge_attr = batched_data
 
         # virtual node embeddings for graphs
         virtualnode_embedding = self.virtualnode_embedding(

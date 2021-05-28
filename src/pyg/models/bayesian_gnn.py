@@ -1,8 +1,8 @@
 import torch
 import torchbnn as bnn
 
-from src.conv.bayesian_gnn import Bayesian_GNN_node_Virtualnode
-from src.models.gnn import GNN
+from src.pyg.layers.bayesian_gnn import Bayesian_GNN_node_Virtualnode
+from src.pyg.models.gnn import GNN
 
 
 class BayesianGNN(GNN):

@@ -7,6 +7,7 @@ from torch.optim.lr_scheduler import StepLR
 from torch.utils.tensorboard import SummaryWriter
 from torch.optim.optimizer import Optimizer
 
+
 def trainer(
     model: torch.nn.Module,
     model_name: str,

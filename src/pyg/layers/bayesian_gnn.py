@@ -4,7 +4,7 @@ import torchbnn as bnn
 from torch_geometric.nn import global_add_pool
 from ogb.graphproppred.mol_encoder import AtomEncoder
 
-from src.conv.bayesian_gin import BayesianGINConv
+from src.pyg.layers.bayesian_gin import BayesianGINConv
 
 
 # Virtual GNN to generate node embedding

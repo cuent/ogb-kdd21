@@ -5,8 +5,8 @@ from torch_geometric.nn import global_add_pool
 from ogb.graphproppred.mol_encoder import AtomEncoder
 
 
-from src.conv.gcn import GCNConv
-from src.conv.gin import GINConv
+from src.pyg.layers.gcn import GCNConv
+from src.pyg.layers.gin import GINConv
 
 
 # GNN to generate node embedding
@@ -165,22 +165,16 @@ class GNN_node_Virtualnode(torch.nn.Module):
             )
 
     def forward(self, batched_data):
-        if isinstance(batched_data, torch_geometric.data.batch.Batch):
-            x, edge_index, edge_attr, batch = (
-                batched_data.x,
-                batched_data.edge_index,
-                batched_data.edge_attr,
-                batched_data.batch,
-            )
-            batch_size = batch[-1].item() + 1
-        else:
-            batch = None
-            x, edge_index, edge_attr = batched_data
-            batch_size = x.batch_size
+        x, edge_index, edge_attr, batch = (
+            batched_data.x,
+            batched_data.edge_index,
+            batched_data.edge_attr,
+            batched_data.batch,
+        )
 
         # virtual node embeddings for graphs
         virtualnode_embedding = self.virtualnode_embedding(
-            torch.zeros(batch_size)
+            torch.zeros(batch[-1].item() + 1)
             .to(edge_index.dtype)
             .to(edge_index.device)
         )

@@ -3,8 +3,8 @@ from torch import nn as nn
 from torch.nn import functional as F
 import dgl.function as fn
 
-from src.layers.dgl import (
-    Bundler,
+from src.dgl.layers.bundler import Bundler
+from src.dgl.layers.aggregator import (
     MaxPoolAggregator,
     LSTMAggregator,
     MeanAggregator,

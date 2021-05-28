@@ -1,9 +1,9 @@
 import torch
 import torch.nn as nn
 
-from src.conv.diffpool import DiffPoolBatchedGraphLayer
-from src.models.gnn import GNN
-from src.conv.graphsage import BatchedGraphSAGE
+from src.dgl.layers.diffpool import DiffPoolBatchedGraphLayer
+from src.dgl.layers.graphsage import BatchedGraphSAGE
+from src.dgl.models.gnn import GNN
 from src.utils import batch2tensor
 import torch.nn.functional as F
 

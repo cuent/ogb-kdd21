@@ -3,7 +3,7 @@ import torch
 from torch import nn as nn
 from torch.nn import functional as F
 
-from src.conv.graphsage import BatchedGraphSAGE, GraphSageLayer
+from src.dgl.layers.graphsage import BatchedGraphSAGE, GraphSageLayer
 from src.loss import EntropyLoss, LinkPredLoss
 
 

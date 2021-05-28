@@ -17,9 +17,9 @@ from src.dataset import (
     get_data_loaders,
     get_dgl_dataloaders,
 )
-from src.models.bayesian_gnn import BayesianGNN
-from src.models.diffpool import DiffPoolGNN
-from src.models.gnn import GNN
+from src.pyg.models.bayesian_gnn import BayesianGNN
+from src.pyg.models.gnn import GNN
+from src.dgl.models.diffpool import DiffPoolGNN
 from src.training.pyg import pyg_train, pyg_eval, pyg_test
 from src.training.dgl_training import dgl_train, dgl_eval, dgl_test
 from src.smiles import Smiles2GraphOGBConverter
@@ -67,7 +67,7 @@ def main(
     save_test_dir: str = typer.Option(
         "", help="directory to save test submission file"
     ),
-    pyg_train_subset: bool = typer.Option(False, help="Train Subset for PyG")
+    pyg_train_subset: bool = typer.Option(False, help="Train Subset for PyG"),
 ):
     # Training settings
     with open(config_path, "r") as f:

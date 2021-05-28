@@ -67,8 +67,8 @@ def get_data_loaders(
     split_idx: dict,
     batch_size: int,
     num_workers: int,
-    train_subset: bool,
     save_test_dir: str,
+    train_subset: bool = False,
 ):
     loader_kws = dict(
         batch_size=batch_size,

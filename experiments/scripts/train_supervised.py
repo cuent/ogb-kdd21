@@ -67,6 +67,7 @@ def main(
     save_test_dir: str = typer.Option(
         "", help="directory to save test submission file"
     ),
+    pyg_train_subset: bool = typer.Option(False, help="Train Subset for PyG")
 ):
     # Training settings
     with open(config_path, "r") as f:
@@ -94,6 +95,7 @@ def main(
             split_idx=split_idx,
             num_workers=num_workers,
             save_test_dir=save_test_dir,
+            train_subset=pyg_train_subset,
             **cfg["data_loader_args"],
         )
     else:

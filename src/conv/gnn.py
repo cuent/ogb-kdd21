@@ -1,5 +1,6 @@
 import torch
 import torch.nn.functional as F
+import torch_geometric
 from torch_geometric.nn import global_add_pool
 from ogb.graphproppred.mol_encoder import AtomEncoder
 
@@ -55,12 +56,16 @@ class GNN_node(torch.nn.Module):
             self.batch_norms.append(torch.nn.BatchNorm1d(emb_dim))
 
     def forward(self, batched_data):
-        x, edge_index, edge_attr, batch = (
-            batched_data.x,
-            batched_data.edge_index,
-            batched_data.edge_attr,
-            batched_data.batch,
-        )
+
+        if isinstance(batched_data, torch_geometric.data.batch.Batch):
+            x, edge_index, edge_attr, batch = (
+                batched_data.x,
+                batched_data.edge_index,
+                batched_data.edge_attr,
+                batched_data.batch,
+            )
+        else:
+            x, edge_index, edge_attr = batched_data
 
         # Computing input node embedding
 

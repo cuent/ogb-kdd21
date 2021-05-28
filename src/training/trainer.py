@@ -5,7 +5,7 @@ import torch.nn
 from ogb.lsc import PCQM4MEvaluator
 from torch.optim.lr_scheduler import StepLR
 from torch.utils.tensorboard import SummaryWriter
-
+from torch.optim.optimizer import Optimizer
 
 def trainer(
     model: torch.nn.Module,
@@ -18,7 +18,7 @@ def trainer(
     valid_loader: torch.utils.data.DataLoader,
     test_loader: torch.utils.data.DataLoader,
     epochs: int,
-    optimizer: torch.optim.optimizer.Optimizer,
+    optimizer: Optimizer,
     scheduler: StepLR,
     reg: Callable,
     device: torch.device,

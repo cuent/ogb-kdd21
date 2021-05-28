@@ -172,12 +172,15 @@ class GNN_node_Virtualnode(torch.nn.Module):
                 batched_data.edge_attr,
                 batched_data.batch,
             )
+            batch_size = batch[-1].item() + 1
         else:
+            batch = None
             x, edge_index, edge_attr = batched_data
+            batch_size = x.batch_size
 
         # virtual node embeddings for graphs
         virtualnode_embedding = self.virtualnode_embedding(
-            torch.zeros(batch[-1].item() + 1)
+            torch.zeros(batch_size)
             .to(edge_index.dtype)
             .to(edge_index.device)
         )

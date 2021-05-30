@@ -1,5 +1,7 @@
+import json
 import os
 import random
+from pathlib import Path
 from typing import Any, Dict
 
 import numpy as np
@@ -58,8 +60,8 @@ def setup_seed() -> None:
 
 
 def main(
-    model_name: str = typer.Option(..., help="Model name"),
-    config_path: str = typer.Option(..., help="Config path"),
+    model_name: str = typer.Option(..., help="model name"),
+    config_path: str = typer.Option(..., help="config path"),
     device: int = typer.Option(0, help="which gpu to use if any (default: 0)"),
     num_workers: int = typer.Option(0, help="number of workers (default: 0)"),
     log_dir: str = typer.Option("", help="tensorboard log directory"),
@@ -67,6 +69,7 @@ def main(
     save_test_dir: str = typer.Option(
         "", help="directory to save test submission file"
     ),
+    metrics_path: str = typer.Option("", help="metrics path"),
     pyg_train_subset: bool = typer.Option(False, help="Train Subset for PyG"),
 ):
     # Training settings
@@ -118,7 +121,7 @@ def main(
     epochs = cfg["learning_args"]["epochs"]
     reg = src.utils.get_module_from_str(cfg["reg"])()
 
-    trainer(
+    metrics = trainer(
         model=model,
         model_name=model_name,
         train_fn=pyg_train if model_name != "diffpool" else dgl_train,
@@ -137,6 +140,12 @@ def main(
         checkpoint_dir=checkpoint_dir,
         save_test_dir=save_test_dir,
     )
+
+    if metrics_path != "":
+        path = Path(metrics_path)
+        path.mkdir(exist_ok=True, parents=True)
+        with open(path, "w+") as f:
+            json.dump(obj=metrics, fp=f)
 
 
 if __name__ == "__main__":

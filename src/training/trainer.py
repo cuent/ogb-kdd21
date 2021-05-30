@@ -29,6 +29,10 @@ def trainer(
 ):
     num_params = sum(p.numel() for p in model.parameters())
     best_valid_mae = 1000
+    best_valid_mae_train = 1000
+
+    valid_mae = None
+    train_mae = None
 
     for epoch in range(1, epochs + 1):
         print("=====Epoch {}".format(epoch))
@@ -52,6 +56,8 @@ def trainer(
 
         if valid_mae < best_valid_mae:
             best_valid_mae = valid_mae
+            best_valid_mae_train = train_mae
+
             if checkpoint_dir != "":
                 print("Saving checkpoint...")
                 checkpoint = {
@@ -80,3 +86,10 @@ def trainer(
 
     if writer:
         writer.close()
+
+    return {
+        "valid_mae": valid_mae,
+        "best_valid_mae": best_valid_mae,
+        "train_mae": train_mae,
+        "best_valid_mae_train": best_valid_mae_train,
+    }

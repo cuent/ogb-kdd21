@@ -3,10 +3,12 @@ import json
 import os
 import random
 import sys
+from typing import List
 
 import numpy as np
 from ogb.lsc import PygPCQM4MDataset, PCQM4MEvaluator
 import torch
+from torch import nn
 from torch_geometric.data import DataLoader
 import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
@@ -25,62 +27,50 @@ torch.multiprocessing.set_sharing_strategy('file_system')
 def train(model, device, loader, optimizer):
     model.train()
     ae_loss_accum = 0
-    hl_loss_accum = 0
 
     for step, batch in enumerate(tqdm(loader, desc="Iteration")):
         batch = batch.to(device)
         optimizer.zero_grad()
 
-        z_graph, homo_lumo_gap, ae_loss, hl_loss = model(batch)
+        _, ae_loss = model(batch)
 
         ae_loss.backward()
-        hl_loss.backward()
         optimizer.step()
 
         ae_loss_accum += ae_loss.detach().cpu().item()
-        hl_loss_accum += hl_loss.detach().cpu().item()
 
-    return (
-        ae_loss_accum / len(loader),
-        hl_loss_accum / len(loader),
-    )
+    return ae_loss_accum / len(loader)
 
 
-def eval(model, device, loader, evaluator):
-    model.eval()
-    y_true = []
-    y_pred = []
+def eval(
+    graph_model: nn.Module,
+    hlgp_model: "HLGapPredictor",
+    loader: DataLoader,
+    evaluator: PCQM4MEvaluator,
+) -> float:
+    graph_model.eval()
 
-    for step, batch in enumerate(tqdm(loader, desc="Iteration")):
-        batch = batch.to(device)
+    y_true = torch.cat([
+        batch.y.cpu()
+        for batch in tqdm(loader, desc="Eval - batch")
+    ], dim=0)
 
-        with torch.no_grad():
-            _, homo_lumo_gap = model(batch)
-
-        y_true.append(batch.y.detach().cpu())
-        y_pred.append(homo_lumo_gap.detach().cpu())
-
-    y_true = torch.cat(y_true, dim=0)
-    y_pred = torch.cat(y_pred, dim=0)
+    y_pred = hlgp_model.predict(graph_model=graph_model, loader=loader)
 
     input_dict = {"y_true": y_true, "y_pred": y_pred}
 
-    return evaluator.eval(input_dict)["mae"]
+    mae = evaluator.eval(input_dict)["mae"]
+
+    return mae
 
 
-def test(model, device, loader):
-    model.eval()
-    y_pred = []
-
-    for step, batch in enumerate(tqdm(loader, desc="Iteration")):
-        batch = batch.to(device)
-
-        with torch.no_grad():
-            _, homo_lumo_gap = model(batch)
-
-        y_pred.append(homo_lumo_gap.detach().cpu())
-
-    y_pred = torch.cat(y_pred, dim=0)
+def test(
+    graph_model: nn.Module,
+    hlgp_model: "HLGapPredictor",
+    loader: DataLoader,
+):
+    graph_model.eval()
+    y_pred = hlgp_model.predict(graph_model=graph_model, loader=loader)
 
     return y_pred
 
@@ -169,6 +159,94 @@ def get_model(params, device):
     return model
 
 
+class HLGapPredictor:
+
+    def __init__(
+        self,
+        emb_dim: int,
+        epochs: int,
+        device: torch.device,
+        lr: float = 1e-3,
+    ):
+        self.device = device
+
+        self.epochs = epochs
+
+        self.layers = nn.Sequential(
+            nn.Linear(emb_dim, 1),
+        )
+
+        self.optimizer = torch.optim.AdamW(
+            params=self.layers.parameters(),
+            lr=lr,
+            weight_decay=1e-5,
+        )
+        self.loss_fn = nn.L1Loss()
+
+        self.layers.to(self.device)
+
+    def fit(self, graph_model: nn.Module, loader: DataLoader) -> List[float]:
+        graph_model.eval()
+        self.layers.train()
+
+        losses = []
+
+        for _ in tqdm(range(self.epochs), desc="HLGapPredictor - epochs"):
+            total_loss = 0
+
+            for batch in tqdm(
+                iterable=loader,
+                desc="HLGapPredictor - batch",
+                leave=False,
+            ):
+                batch = batch.to(self.device)
+
+                with torch.no_grad():
+                    z_graph = graph_model(batch)
+
+                self.optimizer.zero_grad()
+
+                hlg_pred = self.layers(z_graph).squeeze(dim=-1)
+                hlg_true = batch.y
+
+                loss = self.loss_fn(input=hlg_pred, target=hlg_true)
+
+                total_loss += loss.item()
+
+                loss.backward()
+                self.optimizer.step()
+
+            losses.append(total_loss / len(loader))
+
+        return losses
+
+    def predict(
+        self,
+        graph_model: nn.Module,
+        loader: DataLoader
+    ) -> torch.Tensor:
+        graph_model.eval()
+        self.layers.train()
+
+        hl_pred = []
+
+        for batch in tqdm(loader, desc="Predict HLGapPredictor"):
+            batch = batch.to(self.device)
+
+            with torch.no_grad():
+                z_graph = graph_model(batch)
+                hlp = (
+                    self.layers(z_graph)
+                    .cpu()
+                    .squeeze(dim=-1)
+                    .clamp(min=0, max=50)
+                )
+
+                hl_pred.append(hlp)
+
+        return torch.cat(hl_pred, dim=0)
+
+
 def main():
     # Training settings
     params = get_params()
@@ -223,21 +301,48 @@ def main():
     for epoch in range(1, params.epochs + 1):
         print("=====Epoch {}".format(epoch))
         print('Training...')
-        train_ae_loss, train_mae = train(model, device, train_loader, optimizer)
+        train_ae_loss = train(model, device, train_loader, optimizer)
+
+        hl_gap_predictor = HLGapPredictor(
+            emb_dim=params.emb_dim,
+            epochs=5,
+            device=device,
+        )
+        hlgp_loss = hl_gap_predictor.fit(graph_model=model, loader=train_loader)
 
         print('Evaluating...')
-        valid_mae = eval(model, device, valid_loader, evaluator)
+        train_mae = eval(
+            graph_model=model,
+            hlgp_model=hl_gap_predictor,
+            loader=train_loader,
+            evaluator=evaluator,
+        )
+        valid_mae = eval(
+            graph_model=model,
+            hlgp_model=hl_gap_predictor,
+            loader=valid_loader,
+            evaluator=evaluator,
+        )
 
         print({
-            'AE': train_ae_loss,
-            'Train': train_mae,
-            'Validation': valid_mae,
+            "AE loss": train_ae_loss,
+            "HLGapPredictor loss": hlgp_loss[-1],
+            "Train MAE": train_mae,
+            "Validation MAE": valid_mae,
         })
 
         if params.log_dir != '':
-            writer.add_scalar('valid/mae', valid_mae, epoch)
-            writer.add_scalar('train/mae', train_mae, epoch)
-            writer.add_scalar('train/ae_loss', train_ae_loss, epoch)
+            writer.add_scalar("loss/model", train_ae_loss, epoch)
+
+            for idx in range(hl_gap_predictor.epochs):
+                writer.add_scalar(
+                    "loss/hlgp",
+                    hlgp_loss[idx],
+                    epoch * hl_gap_predictor.epochs + idx
+                )
+
+            writer.add_scalar("mae/train", train_mae, epoch)
+            writer.add_scalar("mae/valid", valid_mae, epoch)
 
         if valid_mae < best_valid_mae:
             best_valid_mae = valid_mae
@@ -256,7 +361,11 @@ def main():
 
             if params.save_test_dir != '':
                 print('Predicting on test data...')
-                y_pred = test(model, device, test_loader)
+                y_pred = test(
+                    graph_model=model,
+                    hlgp_model=hl_gap_predictor,
+                    loader=test_loader,
+                )
                 print('Saving test submission file...')
                 evaluator.save_test_submission(
                     input_dict={'y_pred': y_pred},

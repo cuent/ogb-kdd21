@@ -26,17 +26,12 @@ class GraphAE(nn.Module):
 
         self._pooling = tgnn.global_add_pool
 
-        self._homo_lumo_predictor = nn.Linear(emb_dim, 1)
-
     def forward(self, batched_data):
         # Obtain node embeddings
         z_node = self._gae.encode(batched_data)
 
         # Obtain whole graph embedding
         z_graph = self._pooling(z_node, batch=batched_data.batch)
-
-        # Predict HOMO/LUMO gap - detach gradient (for unsupervised learning)
-        homo_lumo_gap = self._homo_lumo_predictor(z_graph.detach()).squeeze(dim=-1)
 
         if self.training:
             # Compute autoencoder loss
@@ -60,12 +55,9 @@ class GraphAE(nn.Module):
 
             ae_loss = recon_loss + atom_feature_loss + bond_feature_loss
 
-            # Compute HOMO/LUMO gap loss (L1)
-            hl_loss = F.l1_loss(input=homo_lumo_gap, target=batched_data.y)
+            return z_graph, ae_loss
 
-            return z_graph, homo_lumo_gap, ae_loss, hl_loss
-
-        return z_graph, homo_lumo_gap.clamp(min=0, max=50)
+        return z_graph
 
 
 class BondDecoder(nn.Module):

@@ -8,6 +8,6 @@ gae:
   # graph_pooling: "sum"
   # drop_ratio: 0.7
   num_layers: 3
-  emb_dim: 600
+  emb_dim: 128
   batch_size: 512
-  epochs: 15
+  epochs: 5

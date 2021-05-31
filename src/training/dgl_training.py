@@ -53,7 +53,7 @@ def dgl_eval(model, device, loader, evaluator):
 
     input_dict = {"y_true": y_true, "y_pred": y_pred}
 
-    return evaluator.pyg_eval(input_dict)["mae"]
+    return evaluator.eval(input_dict)["mae"]
 
 
 def dgl_test(model, device, loader):

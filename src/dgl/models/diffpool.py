@@ -50,7 +50,7 @@ class DiffPoolGNN(GNN):
     def forward(self, g, x, edge_attr):
         # 1. GCN: 3628x9 -> 3628x600
         g.ndata["h"] = x
-        h_node = self.gnn_node((g, x, edge_attr))
+        h_node = self.gnn_node(g, x, edge_attr)
         h_graph_1 = self.pool(g, h_node)
         adj, h_node = self.first_diffpool_layer(g, h_node)
 

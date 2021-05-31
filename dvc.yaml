@@ -3,7 +3,7 @@ stages:
     wdir: .
     cmd: PYTHONPATH=. python3 experiments/scripts/preprocess_dataset.py
     params:
-      - preprocess_dataset.smiles2grap
+      - preprocess_dataset.smiles2graph
     deps:
       - experiments/scripts/preprocess_dataset.py
     outs:

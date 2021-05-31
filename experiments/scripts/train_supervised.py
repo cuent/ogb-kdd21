@@ -143,7 +143,7 @@ def main(
 
     if metrics_path != "":
         path = Path(metrics_path)
-        path.mkdir(exist_ok=True, parents=True)
+        path.parent.mkdir(exist_ok=True, parents=True)
         with open(path, "w+") as f:
             json.dump(obj=metrics, fp=f)
 

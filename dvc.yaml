@@ -46,3 +46,19 @@ stages:
       - data/logs/gae/
       - data/checkpoints/gae/
       - data/submissions/gae/
+
+  train_gunet:
+    wdir: .
+    cmd: PYTHONPATH=. python3 experiments/scripts/train_unsupervised.py gunet
+    params:
+      - gunet
+    metrics:
+      - data/metrics/gunet.json
+    deps:
+      - experiments/scripts/train_unsupervised.py
+      - src/models/gunet.py
+      - data/dataset/
+    outs:
+      - data/logs/gunet/
+      - data/checkpoints/gunet/
+      - data/submissions/gunet/

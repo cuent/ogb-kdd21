@@ -11,3 +11,9 @@ gae:
   emb_dim: 128
   batch_size: 512
   epochs: 5
+
+gunet:
+  depth: 3
+  emb_dim: 128
+  batch_size: 512
+  epochs: 5

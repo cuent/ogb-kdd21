@@ -19,6 +19,7 @@ import yaml
 from src import DATA_DIR
 from src.dataset import load_dataset
 from src.models.gae import GraphAE
+from src.models.gunet import GraphUNetModel
 
 
 torch.multiprocessing.set_sharing_strategy('file_system')
@@ -26,20 +27,20 @@ torch.multiprocessing.set_sharing_strategy('file_system')
 
 def train(model, device, loader, optimizer):
     model.train()
-    ae_loss_accum = 0
+    loss_accum = 0
 
     for step, batch in enumerate(tqdm(loader, desc="Iteration")):
         batch = batch.to(device)
         optimizer.zero_grad()
 
-        _, ae_loss = model(batch)
+        _, loss = model(batch)
 
-        ae_loss.backward()
+        loss.backward()
         optimizer.step()
 
-        ae_loss_accum += ae_loss.detach().cpu().item()
+        loss_accum += loss.detach().cpu().item()
 
-    return ae_loss_accum / len(loader)
+    return loss_accum / len(loader)
 
 
 def eval(
@@ -147,11 +148,12 @@ def get_data_loaders(
 
 def get_model(params, device):
     shared_params = {
-        'num_layers': params.num_layers,
         'emb_dim': params.emb_dim,
     }
     if params.model_name == 'gae':
-        model = GraphAE(**shared_params)
+        model = GraphAE(**shared_params, num_layers=params.num_layers)
+    elif params.model_name == "gunet":
+        model = GraphUNetModel(**shared_params, depth=params.depth)
     else:
         raise ValueError('Invalid GNN type')
 
@@ -301,7 +303,7 @@ def main():
     for epoch in range(1, params.epochs + 1):
         print("=====Epoch {}".format(epoch))
         print('Training...')
-        train_ae_loss = train(model, device, train_loader, optimizer)
+        train_model_loss = train(model, device, train_loader, optimizer)
 
         hl_gap_predictor = HLGapPredictor(
             emb_dim=params.emb_dim,
@@ -325,14 +327,14 @@ def main():
         )
 
         print({
-            "AE loss": train_ae_loss,
+            "Model loss": train_model_loss,
             "HLGapPredictor loss": hlgp_loss[-1],
             "Train MAE": train_mae,
             "Validation MAE": valid_mae,
         })
 
         if params.log_dir != '':
-            writer.add_scalar("loss/model", train_ae_loss, epoch)
+            writer.add_scalar("loss/model", train_model_loss, epoch)
 
             for idx in range(hl_gap_predictor.epochs):
                 writer.add_scalar(

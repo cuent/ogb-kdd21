@@ -58,28 +58,67 @@ stages:
       size: 8538784731
       nfiles: 6
     - path: experiments/scripts/train_unsupervised.py
-      md5: 718552683bf3db540d4b4318d3b5608b
-      size: 7230
+      md5: a77d8bb74097fac2fb25ccef90ca33db
+      size: 10390
     - path: src/models/gae.py
-      md5: 559dde28cad802f222cb30561e8d647a
-      size: 6663
+      md5: 5f3b8c938d2a0050cc9fbc07ea616ff7
+      size: 6258
     params:
       params.yaml:
         gae:
           num_layers: 3
-          emb_dim: 600
-          batch_size: 256
-          epochs: 15
+          emb_dim: 128
+          batch_size: 512
+          epochs: 5
     outs:
     - path: data/checkpoints/gae/
-      md5: 458316bb1c3207d6b8e9e50d80e9c0e4.dir
-      size: 16092025
+      md5: 5463e786919efe31d7c809e8971b9666.dir
+      size: 1307075
       nfiles: 1
     - path: data/logs/gae/
-      md5: 403ab99d1480ae99863b9d3a42ef7746.dir
-      size: 2215
+      md5: 31626e31a1588d6b1d32ebd841b1a882.dir
+      size: 1925
       nfiles: 1
+    - path: data/metrics/gae.json
+      md5: 8bc5236df1c5d669977b08d1003cfdc2
+      size: 37
     - path: data/submissions/gae/
-      md5: b3a80c7cf68709b318deca7dde69fda5.dir
-      size: 1279404
+      md5: dbadc5ec82cacfa7018b4fee54c39021.dir
+      size: 1280559
+      nfiles: 1
+  train_gunet:
+    cmd: PYTHONPATH=. python3 experiments/scripts/train_unsupervised.py gunet
+    deps:
+    - path: data/dataset/
+      md5: 4a50c6545464f8a04bfcc49d2a660d25.dir
+      size: 8538784731
+      nfiles: 6
+    - path: experiments/scripts/train_unsupervised.py
+      md5: a77d8bb74097fac2fb25ccef90ca33db
+      size: 10390
+    - path: src/models/gunet.py
+      md5: c17ee51077f8a5fd468cacf4910928ed
+      size: 2454
+    params:
+      params.yaml:
+        gunet:
+          depth: 3
+          emb_dim: 128
+          batch_size: 512
+          epochs: 5
+    outs:
+    - path: data/checkpoints/gunet/
+      md5: 29456cb1f10ccdc437cabec3234d1c98.dir
+      size: 457645
+      nfiles: 1
+    - path: data/logs/gunet/
+      md5: 7f86323007cdd5c7add23bc4d5ba9bb8.dir
+      size: 1925
+      nfiles: 1
+    - path: data/metrics/gunet.json
+      md5: 7d38e4202423228866a13746e18cee0d
+      size: 37
+    - path: data/submissions/gunet/
+      md5: c7c798687af91e1227efd4d86b4d5cc1.dir
+      size: 1271490
       nfiles: 1

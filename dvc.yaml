@@ -16,7 +16,13 @@ stages:
       wdir: .
       cmd: PYTHONPATH=. python3 experiments/scripts/train_supervised.py --model ${item} --config-path experiments/configs/${item}.yaml --checkpoint_dir data/supervised/${item}/checkpoints --save-test-dir data/supervised/${item}/submssion --metrics-path data/metrics/supervised/${item}.json --log-dir data/supervised/${item}/logs
       params:
-        - experiments/configs/${item}.yaml
+        - experiments/configs/${item}.yaml:
+            - args
+            - learning_args
+            - step_lr
+            - data_loader_args
+            - dataset
+            - reg
       deps:
         - data/dataset/
       metrics:

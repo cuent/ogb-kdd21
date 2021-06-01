@@ -1,0 +1,4 @@
+preprocess_dataset:
+  smiles2graph:
+    cls: src.smiles.Smiles2GraphOGBConverter
+    args: {}

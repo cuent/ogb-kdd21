@@ -4,7 +4,7 @@ import torchbnn as bnn
 from torch_geometric.nn import global_add_pool
 from ogb.graphproppred.mol_encoder import AtomEncoder
 
-from src.conv.bayesian_gin import BayesianGINConv
+from src.pyg.layers.bayesian_gin import BayesianGINConv
 
 
 # Virtual GNN to generate node embedding
@@ -14,11 +14,18 @@ class Bayesian_GNN_node_Virtualnode(torch.nn.Module):
         node representations
     """
 
-    def __init__(self, num_layers, emb_dim, drop_ratio=0.5, JK="last",
-                 residual=False, gnn_type='gin'):
-        '''
-            emb_dim (int): node embedding dimensionality
-        '''
+    def __init__(
+        self,
+        num_layers,
+        emb_dim,
+        drop_ratio=0.5,
+        JK="last",
+        residual=False,
+        gnn_type="gin",
+    ):
+        """
+        emb_dim (int): node embedding dimensionality
+        """
 
         super(Bayesian_GNN_node_Virtualnode, self).__init__()
         self.num_layers = num_layers
@@ -44,12 +51,12 @@ class Bayesian_GNN_node_Virtualnode(torch.nn.Module):
         self.mlp_virtualnode_list = torch.nn.ModuleList()
 
         for layer in range(num_layers):
-            if gnn_type == 'gin':
+            if gnn_type == "gin":
                 self.convs.append(BayesianGINConv(emb_dim))
-            elif gnn_type == 'gcn':
+            elif gnn_type == "gcn":
                 raise Exception("not implemented yet")
             else:
-                ValueError('Undefined GNN type called {}'.format(gnn_type))
+                ValueError("Undefined GNN type called {}".format(gnn_type))
 
             self.batch_norms.append(torch.nn.BatchNorm1d(emb_dim))
 
@@ -57,17 +64,21 @@ class Bayesian_GNN_node_Virtualnode(torch.nn.Module):
             self.mlp_virtualnode_list.append(
                 torch.nn.Sequential(
                     bnn.BayesLinear(
-                        prior_mu=0, prior_sigma=0.1,
-                        in_features=emb_dim, out_features=emb_dim
+                        prior_mu=0,
+                        prior_sigma=0.1,
+                        in_features=emb_dim,
+                        out_features=emb_dim,
                     ),
                     torch.nn.BatchNorm1d(emb_dim),
                     torch.nn.ReLU(),
                     bnn.BayesLinear(
-                        prior_mu=0, prior_sigma=0.1,
-                        in_features=emb_dim, out_features=emb_dim
+                        prior_mu=0,
+                        prior_sigma=0.1,
+                        in_features=emb_dim,
+                        out_features=emb_dim,
                     ),
                     torch.nn.BatchNorm1d(emb_dim),
-                    torch.nn.ReLU()
+                    torch.nn.ReLU(),
                 )
             )
 
@@ -82,8 +93,8 @@ class Bayesian_GNN_node_Virtualnode(torch.nn.Module):
         # virtual node embeddings for graphs
         virtualnode_embedding = self.virtualnode_embedding(
             torch.zeros(batch[-1].item() + 1)
-                 .to(edge_index.dtype)
-                 .to(edge_index.device)
+            .to(edge_index.dtype)
+            .to(edge_index.device)
         )
 
         h_list = [self.atom_encoder(x)]
@@ -99,7 +110,9 @@ class Bayesian_GNN_node_Virtualnode(torch.nn.Module):
                 # remove relu for the last layer
                 h = F.dropout(h, self.drop_ratio, training=self.training)
             else:
-                h = F.dropout(F.relu(h), self.drop_ratio, training=self.training)
+                h = F.dropout(
+                    F.relu(h), self.drop_ratio, training=self.training
+                )
 
             if self.residual:
                 h = h + h_list[layer]
@@ -116,19 +129,20 @@ class Bayesian_GNN_node_Virtualnode(torch.nn.Module):
 
                 # transform virtual nodes using MLP
                 if self.residual:
-                    virtualnode_embedding = (
-                        virtualnode_embedding
-                        + F.dropout(
-                            self.mlp_virtualnode_list[layer](virtualnode_embedding_temp),
-                            self.drop_ratio,
-                            training=self.training,
-                        )
+                    virtualnode_embedding = virtualnode_embedding + F.dropout(
+                        self.mlp_virtualnode_list[layer](
+                            virtualnode_embedding_temp
+                        ),
+                        self.drop_ratio,
+                        training=self.training,
                     )
                 else:
                     virtualnode_embedding = F.dropout(
-                        self.mlp_virtualnode_list[layer](virtualnode_embedding_temp),
+                        self.mlp_virtualnode_list[layer](
+                            virtualnode_embedding_temp
+                        ),
                         self.drop_ratio,
-                        training=self.training
+                        training=self.training,
                     )
 
         # Different implementations of Jk-concat

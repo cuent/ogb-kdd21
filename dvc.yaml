@@ -1,0 +1,32 @@
+stages:
+  preprocess_dataset:
+    wdir: .
+    cmd: PYTHONPATH=. python3 experiments/scripts/preprocess_dataset.py
+    params:
+      - preprocess_dataset.smiles2graph
+    deps:
+      - experiments/scripts/preprocess_dataset.py
+    outs:
+      - data/dataset/
+
+  train_supervised:
+    foreach:
+      - diffpool
+    do:
+      wdir: .
+      cmd: PYTHONPATH=. python3 experiments/scripts/train_supervised.py --model-name ${item} --config-path experiments/configs/${item}.yaml --checkpoint-dir data/supervised/${item}/checkpoints --save-test-dir data/supervised/${item}/submssion --metrics-path data/metrics/supervised/${item}.json --log-dir data/supervised/${item}/logs
+      params:
+        - experiments/configs/${item}.yaml:
+            - args
+            - learning_args
+            - step_lr
+            - data_loader_args
+            - dataset
+            - reg
+      deps:
+        - data/dataset/
+      metrics:
+        - data/metrics/supervised/${item}.json:
+            cache: false
+      outs:
+        - data/supervised/${item}/

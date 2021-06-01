@@ -1,0 +1,5 @@
+[core]
+    remote = gcloud
+['remote "gcloud"']
+    url = gs://ogb-lsc/dvc/
+    projectname = ogb-team

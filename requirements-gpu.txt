@@ -9,3 +9,4 @@ torch-cluster==1.5.8
 torch-spline-conv==1.2.0
 torch-geometric==1.6.3
 dgl-cu102==0.6.1
+torchbnn==1.2

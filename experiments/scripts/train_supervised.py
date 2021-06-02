@@ -62,8 +62,6 @@ def setup_seed() -> None:
 def main(
     model_name: str = typer.Option(..., help="model name"),
     config_path: str = typer.Option(..., help="config path"),
-    device: int = typer.Option(0, help="which gpu to use if any (default: 0)"),
-    num_workers: int = typer.Option(0, help="number of workers (default: 0)"),
     log_dir: str = typer.Option("", help="tensorboard log directory"),
     checkpoint_dir: str = typer.Option("", help="directory to save checkpoint"),
     save_test_dir: str = typer.Option(
@@ -72,6 +70,9 @@ def main(
     metrics_path: str = typer.Option("", help="metrics path"),
     pyg_train_subset: bool = typer.Option(False, help="Train Subset for PyG"),
 ):
+    device = os.getenv("CUDA_DEVICE", 0)
+    num_workers = os.getenv("NUM_WORKERS", 0)
+    
     # Training settings
     with open(config_path, "r") as f:
         cfg = yaml.safe_load(f)

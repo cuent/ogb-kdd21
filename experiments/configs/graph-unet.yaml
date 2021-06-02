@@ -1,0 +1,16 @@
+args:
+  depth: 3
+  emb_dim: 600
+
+learning_args:
+  epochs: 5
+
+step_lr:
+  step_size: 300
+  gamma: 0.25
+
+data_loader_args:
+  batch_size: 512
+
+dataset: ogb.lsc.PygPCQM4MDataset
+reg: torch.nn.L1Loss

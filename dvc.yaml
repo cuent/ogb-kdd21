@@ -12,6 +12,7 @@ stages:
   train_supervised:
     foreach:
       - diffpool
+      - graph-unet
     do:
       wdir: .
       cmd: PYTHONPATH=. python3 experiments/scripts/train_supervised.py --model-name ${item} --config-path experiments/configs/${item}.yaml --checkpoint-dir data/supervised/${item}/checkpoints --save-test-dir data/supervised/${item}/submssion --metrics-path data/metrics/supervised/${item}.json --log-dir data/supervised/${item}/logs

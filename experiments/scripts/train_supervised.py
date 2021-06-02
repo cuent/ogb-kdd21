@@ -21,6 +21,7 @@ from src.dataset import (
 )
 from src.pyg.models.bayesian_gnn import BayesianGNN
 from src.pyg.models.gnn import GNN
+from src.pyg.models.gunet import SupervisedGraphUNetModel
 from src.dgl.models.diffpool import DiffPoolGNN
 from src.training.pyg import pyg_train, pyg_eval, pyg_test
 from src.training.dgl_training import dgl_train, dgl_eval, dgl_test
@@ -45,6 +46,8 @@ def get_model(
         model = BayesianGNN(gnn_type="gin", virtual_node=True, **model_args)
     elif model == "diffpool":
         model = DiffPoolGNN(gnn_type="gin", virtual_node=True, **model_args)
+    elif model == "graph-unet":
+        model = SupervisedGraphUNetModel(**model_args)
     else:
         raise ValueError("Invalid GNN type")
 

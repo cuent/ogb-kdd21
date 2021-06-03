@@ -50,3 +50,35 @@ stages:
       md5: 1b0b549409741e30d256b001650e194f.dir
       size: 94434306
       nfiles: 3
+  train_supervised@graph-unet:
+    cmd: PYTHONPATH=. python3 experiments/scripts/train_supervised.py --model-name
+      graph-unet --config-path experiments/configs/graph-unet.yaml --checkpoint-dir
+      data/supervised/graph-unet/checkpoints --save-test-dir data/supervised/graph-unet/submssion
+      --metrics-path data/metrics/supervised/graph-unet.json --log-dir data/supervised/graph-unet/logs
+    deps:
+    - path: data/dataset/
+      md5: b73ffb2c0b23563450be11ad150e6806.dir
+      size: 20116395933
+      nfiles: 7
+    params:
+      experiments/configs/graph-unet.yaml:
+        args:
+          depth: 3
+          emb_dim: 600
+        data_loader_args:
+          batch_size: 512
+        dataset: ogb.lsc.PygPCQM4MDataset
+        learning_args:
+          epochs: 30
+        reg: torch.nn.L1Loss
+        step_lr:
+          step_size: 300
+          gamma: 0.25
+    outs:
+    - path: data/metrics/supervised/graph-unet.json
+      md5: e0d7c19b5af9547b3f7d3c4214102793
+      size: 150
+    - path: data/supervised/graph-unet/
+      md5: 606823ca9eec0afb9e2769b27900ddbf.dir
+      size: 5410776
+      nfiles: 3

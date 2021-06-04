@@ -1,7 +1,7 @@
 from typing import Callable
 
 import torch
-from tqdm.auto import tqdm
+from tqdm import tqdm
 
 
 def pyg_train(

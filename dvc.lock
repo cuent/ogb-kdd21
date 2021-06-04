@@ -69,16 +69,16 @@ stages:
           batch_size: 512
         dataset: ogb.lsc.PygPCQM4MDataset
         learning_args:
-          epochs: 30
+          epochs: 15
         reg: torch.nn.L1Loss
         step_lr:
-          step_size: 300
+          step_size: 5
           gamma: 0.25
     outs:
     - path: data/metrics/supervised/graph-unet.json
-      md5: e0d7c19b5af9547b3f7d3c4214102793
-      size: 150
+      md5: 59d3d63b0cec5bbfcb0f01e6d98b2079
+      size: 148
     - path: data/supervised/graph-unet/
-      md5: 606823ca9eec0afb9e2769b27900ddbf.dir
-      size: 5410776
+      md5: 01825508c6d5bca8204de5ad999a35dc.dir
+      size: 18851207
       nfiles: 3

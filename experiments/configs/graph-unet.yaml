@@ -3,10 +3,10 @@ args:
   emb_dim: 600
 
 learning_args:
-  epochs: 30
+  epochs: 15
 
 step_lr:
-  step_size: 300
+  step_size: 5
   gamma: 0.25
 
 data_loader_args:

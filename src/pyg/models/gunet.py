@@ -17,7 +17,7 @@ class SupervisedGraphUNetModel(nn.Module):
 
         self._unet = _GraphUNet(
             in_channels=emb_dim,
-            hidden_channels=128,
+            hidden_channels=emb_dim // 2,
             out_channels=emb_dim,
             depth=depth,
             pool_ratios=0.5
@@ -25,7 +25,13 @@ class SupervisedGraphUNetModel(nn.Module):
 
         self._pooling = tgnn.global_add_pool
 
-        self._predictor = nn.Linear(emb_dim, 1)
+        self._predictor = nn.Sequential(
+            nn.Linear(emb_dim, emb_dim),
+            nn.BatchNorm1d(emb_dim, momentum=0.01),
+            nn.Linear(emb_dim, emb_dim // 2),
+            nn.BatchNorm1d(emb_dim // 2),
+            nn.Linear(emb_dim // 2, 1),
+        )
 
     def forward(self, batched_data):
         h_node = self._unet(
@@ -53,20 +59,30 @@ class _GraphUNet(GraphUNet):
         edge_index, edge_weight = sort_edge_index(edge_index, edge_weight,
                                                   num_nodes)
 
+        # Custom sparse
+        a = torch.sparse_coo_tensor(edge_index, edge_weight)
+        b = torch.sparse_coo_tensor(edge_index, edge_weight).to_dense()
+
+        c = (a @ b).to_sparse()
+        
+        edge_index = c.indices()
+        edge_weight = c.values()
+
         # The `spspmm` function does not work on GPU - it yields a SIGSEGV.
         # Here we first transfer it to CPU, process it and then back to GPU.
         # Of course this slows down processing, but it is the only workaround
         # for now.
-        dev = edge_index.device
-        edge_index = edge_index.to("cpu")
-        edge_weight = edge_weight.to("cpu")
+        #dev = edge_index.device
+        #edge_index = edge_index.to("cpu")
+        #edge_weight = edge_weight.to("cpu")
 
-        edge_index, edge_weight = spspmm(edge_index, edge_weight, edge_index,
-                                         edge_weight, num_nodes, num_nodes,
-                                         num_nodes)
+        #edge_index, edge_weight = spspmm(edge_index, edge_weight, edge_index,
+        #                                 edge_weight, num_nodes, num_nodes,
+        #                                 num_nodes)
 
-        edge_index = edge_index.to(dev)
-        edge_weight = edge_weight.to(dev)
+        #edge_index = edge_index.to(dev)
+        #edge_weight = edge_weight.to(dev)
 
+        #__import__("pdb").set_trace()
         edge_index, edge_weight = remove_self_loops(edge_index, edge_weight)
         return edge_index, edge_weight

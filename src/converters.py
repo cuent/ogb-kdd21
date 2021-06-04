@@ -11,14 +11,23 @@ def smiles2graphft(smiles: str):
         "Kappa1",
         "Chi1",
         "Chi1n",
-        "Chi1v",
+        "Chi3v",
         "NumHAcceptors",
         "NumRotatableBonds",
         "NumValenceElectrons",
-        "BCUT2D",
-        "NumBridgeheadAtoms",
         "Ipc",
+        "Kappa2",
+        "Kappa3",
+        "HallKierAlpha",
+        "NumHDonors",
+        "HeavyAtomMolWt",
+        "HeavyAtomCount",
+        "ExactMolWt",
+        "Phi",
+        "Chi0",
+        "LabuteASA",
     ]
+
     calculator = MoleculeDescriptors.MolecularDescriptorCalculator(des_list)
     graph_features_list = list(calculator.CalcDescriptors(mol))
     gf = np.array(graph_features_list, dtype=np.int64)

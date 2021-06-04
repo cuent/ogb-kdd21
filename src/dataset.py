@@ -3,13 +3,14 @@ import os
 from pathlib import Path
 from typing import Callable, Optional
 
+import dgl
 import numpy as np
 import pandas as pd
 import torch
 from ogb.lsc import PygPCQM4MDataset, DglPCQM4MDataset
 from torch_geometric.data import DataLoader
+from tqdm import tqdm
 
-import dgl
 from src import DATA_DIR
 from src.converters import smiles2graphft
 
@@ -141,6 +142,7 @@ class CustomPCQM4MDataset:
         hg = raw_data["homolumogap"].values
 
         processed = []
+
         for it in smiles_str:
             processed.append(smiles2graphft(it))
 

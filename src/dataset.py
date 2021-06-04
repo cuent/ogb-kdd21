@@ -1,12 +1,17 @@
+import gzip
 import os
+from pathlib import Path
 from typing import Callable, Optional
 
-import dgl
+import numpy as np
+import pandas as pd
 import torch
 from ogb.lsc import PygPCQM4MDataset, DglPCQM4MDataset
 from torch_geometric.data import DataLoader
 
+import dgl
 from src import DATA_DIR
+from src.converters import smiles2graphft
 
 
 def load_dataset(
@@ -105,3 +110,39 @@ def get_data_loaders(
         test_loader = None
 
     return train_loader, valid_loader, test_loader
+
+
+class CustomPCQM4MDataset:
+    def __init__(
+        self,
+        output_path: str = "data/dataset/pcqm4m_kddcup2021/processed/graph_ft.pt",
+        raw_data_path: str = "data/dataset/pcqm4m_kddcup2021/raw/data.csv.gz",
+    ):
+        self.data = None
+        self.path = Path(output_path)
+        self.raw_path = Path(raw_data_path)
+
+        if not self.path.exists():
+            self.process()
+
+        self.load()
+
+    def __getitem__(self, idx):
+        return self.data[idx]
+
+    def load(self):
+        self.data = torch.load(self.path)
+
+    def process(self):
+        with gzip.open(self.raw_path, "rb") as f:
+            raw_data = pd.read_csv(f)
+
+        smiles_str = raw_data["smiles"]
+        hg = raw_data["homolumogap"].values
+
+        processed = []
+        for it in smiles_str:
+            processed.append(smiles2graphft(it))
+
+        processed = torch.from_numpy(np.array(processed))
+        torch.save(obj=(processed, hg), f=self.path)

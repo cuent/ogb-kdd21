@@ -70,9 +70,9 @@ def main(
     metrics_path: str = typer.Option("", help="metrics path"),
     pyg_train_subset: bool = typer.Option(False, help="Train Subset for PyG"),
 ):
-    device = os.getenv("CUDA_DEVICE", 0)
-    num_workers = os.getenv("NUM_WORKERS", 0)
-    
+    device = int(os.getenv("CUDA_DEVICE", "0"))
+    num_workers = int(os.getenv("NUM_WORKERS", "0"))
+
     # Training settings
     with open(config_path, "r") as f:
         cfg = yaml.safe_load(f)

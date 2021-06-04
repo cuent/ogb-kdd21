@@ -4,6 +4,7 @@ from src.dataset import load_dataset
 from src.utils import get_module_from_str
 from ogb.lsc import PygPCQM4MDataset, DglPCQM4MDataset
 
+
 def main():
     with open("params.yaml", "r") as f:
         cfg = yaml.safe_load(f)["preprocess_dataset"]

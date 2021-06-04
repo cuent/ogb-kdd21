@@ -13,6 +13,7 @@ from tqdm import tqdm
 
 from src import DATA_DIR
 from src.converters import smiles2graphft
+from sklearn.preprocessing import StandardScaler
 
 
 def load_dataset(
@@ -118,10 +119,12 @@ class CustomPCQM4MDataset:
         self,
         output_path: str = "data/dataset/pcqm4m_kddcup2021/processed/graph_ft.pt",
         raw_data_path: str = "data/dataset/pcqm4m_kddcup2021/raw/data.csv.gz",
+        split_dict_path: str = "data/dataset/pcqm4m_kddcup2021/split_dict.pt",
     ):
         self.data = None
         self.path = Path(output_path)
         self.raw_path = Path(raw_data_path)
+        self.split_dict_path = Path(split_dict_path)
 
         if not self.path.exists():
             self.process()
@@ -146,5 +149,42 @@ class CustomPCQM4MDataset:
         for it in tqdm(smiles_str):
             processed.append(smiles2graphft(it))
 
-        processed = torch.from_numpy(np.array(processed))
+        processed = self.scale(np.array(processed))
         torch.save(obj=(processed, hg), f=self.path)
+
+    def scale(self, data):
+        splits = torch.load(self.split_dict_path)
+
+        splitted_data = {
+            "train": {
+                "data": [data[it] for it in splits["train"]],
+                "split": splits["train"],
+            },
+            "test": {
+                "data": [data[it] for it in splits["test"]],
+                "split": splits["test"],
+            },
+            "dev": {
+                "data": [data[it] for it in splits["dev"]],
+                "split": splits["dev"],
+            },
+        }
+
+        scaler = StandardScaler()
+        splitted_data["train"]["data"] = scaler.fit_transform(
+            splitted_data["train"]["data"]
+        )
+        splitted_data["test"]["data"] = scaler.transform(
+            splitted_data["test"]["data"]
+        )
+        splitted_data["dev"]["data"] = scaler.transform(
+            splitted_data["dev"]["data"]
+        )
+
+        out = torch.zeros(size=data.shape)
+
+        for split, split_data in splitted_data.items():
+            for it_id, ds_id in enumerate(split_data["split"]):
+                out[ds_id] = torch.from_numpy(split_data["data"][it_id])
+
+        return out

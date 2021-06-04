@@ -143,7 +143,7 @@ class CustomPCQM4MDataset:
 
         processed = []
 
-        for it in smiles_str:
+        for it in tqdm(smiles_str):
             processed.append(smiles2graphft(it))
 
         processed = torch.from_numpy(np.array(processed))

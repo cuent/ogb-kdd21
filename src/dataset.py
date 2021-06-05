@@ -165,9 +165,9 @@ class LinearPCQM4MDataset:
                 "data": [data[it] for it in splits["test"]],
                 "split": splits["test"],
             },
-            "dev": {
-                "data": [data[it] for it in splits["dev"]],
-                "split": splits["dev"],
+            "valid": {
+                "data": [data[it] for it in splits["valid"]],
+                "split": splits["valid"],
             },
         }
 
@@ -178,8 +178,8 @@ class LinearPCQM4MDataset:
         splitted_data["test"]["data"] = scaler.transform(
             splitted_data["test"]["data"]
         )
-        splitted_data["dev"]["data"] = scaler.transform(
-            splitted_data["dev"]["data"]
+        splitted_data["valid"]["data"] = scaler.transform(
+            splitted_data["valid"]["data"]
         )
 
         out = torch.zeros(size=data.shape)

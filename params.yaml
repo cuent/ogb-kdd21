@@ -3,6 +3,7 @@ preprocess_dataset:
     cls: src.smiles.Smiles2GraphOGBConverter
     args: {}
 
+datasets:
   DglPCQM4MDataset:
     output_path: data/dataset/pcqm4m_kddcup2021/processed/dgl_data_processed
   PygPCQM4MDataset:

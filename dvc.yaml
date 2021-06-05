@@ -1,9 +1,6 @@
 stages:
   preprocess_dataset:
-    foreach:
-      - DglPCQM4MDataset
-      - PygPCQM4MDataset
-      - LinearPCQM4MDataset
+    foreach: ${datasets} # From params.yaml
     do:
       wdir: .
       cmd: PYTHONPATH=. python3 experiments/scripts/preprocess_dataset.py --dataset ${item}
@@ -12,7 +9,7 @@ stages:
       deps:
         - experiments/scripts/preprocess_dataset.py
       outs:
-        - preprocess_dataset.${item}.output_path
+        - ${item.output_path}
 
   train_supervised:
     foreach:

@@ -17,7 +17,7 @@ DATASETS = {
 
 def main(dataset: str = typer.Option(..., help="Dataset path")):
     with open("params.yaml", "r") as f:
-        cfg = yaml.safe_load(f)["preprocess_dataset"]
+        cfg = yaml.safe_load(f)["datasets"][dataset]
 
     s2g_converter = get_module_from_str(cfg["smiles2graph"]["cls"])(
         **cfg["smiles2graph"]["args"]

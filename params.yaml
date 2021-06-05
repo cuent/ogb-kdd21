@@ -1,15 +1,19 @@
-preprocess_dataset:
-  smiles2graph:
-    cls: src.smiles.Smiles2GraphOGBConverter
-    args: {}
-
 datasets:
   DglPCQM4MDataset:
     name: DglPCQM4MDataset
     output_path: data/dataset/pcqm4m_kddcup2021/processed/dgl_data_processed
+    smiles2graph:
+      cls: src.smiles.Smiles2GraphOGBConverter
+      args: {}
   PygPCQM4MDataset:
     name: PygPCQM4MDataset
     output_path: data/dataset/pcqm4m_kddcup2021/processed/geometric_data_processed.pt
+    smiles2graph:
+      cls: src.smiles.Smiles2GraphOGBConverter
+      args: {}
   LinearPCQM4MDataset:
     name: LinearPCQM4MDataset
     output_path: data/dataset/pcqm4m_kddcup2021/processed/graph_ft.pt
+    smiles2graph:
+      cls: src.smiles.Smiles2GraphFeatures
+      args: {}

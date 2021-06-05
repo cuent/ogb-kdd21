@@ -117,15 +117,20 @@ def get_data_loaders(
 class LinearPCQM4MDataset:
     def __init__(
         self,
+        smiles2graph: Callable,
         root: str = "data/dataset/",
-        smiles2graph: Optional[Callable] = None,
     ):
         self.data = None
         self.root = Path(root)
+        self.smiles2graph = smiles2graph
 
-        self.path = self.root.joinpath("pcqm4m_kddcup2021/processed/graph_ft.pt")
+        self.path = self.root.joinpath(
+            "pcqm4m_kddcup2021/processed/graph_ft.pt"
+        )
         self.raw_path = self.root.joinpath("pcqm4m_kddcup2021/raw/data.csv.gz")
-        self.split_dict_path = self.root.joinpath("pcqm4m_kddcup2021/split_dict.pt")
+        self.split_dict_path = self.root.joinpath(
+            "pcqm4m_kddcup2021/split_dict.pt"
+        )
 
         if not self.path.exists():
             self.process()
@@ -241,7 +246,7 @@ class AggregateCollater:
         dgl_batch = collate_dgl(samples)[:-1]
         n_features = dgl_batch.ndata.pop("feat")
         e_features = dgl_batch.edata.pop("feat")
-        return (dgl_batch, n_features, e_features)
+        return dgl_batch, n_features, e_features
 
     @staticmethod
     def collate_torch_agg(samples):

@@ -13,5 +13,5 @@ args:
     - linear:
         in: 16
         out: 16
-    output_features: 300
+  output_features: 300
 

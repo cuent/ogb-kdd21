@@ -1,13 +1,18 @@
 stages:
   preprocess_dataset:
-    wdir: .
-    cmd: PYTHONPATH=. python3 experiments/scripts/preprocess_dataset.py
-    params:
-      - preprocess_dataset.smiles2graph
-    deps:
-      - experiments/scripts/preprocess_dataset.py
-    outs:
-      - data/dataset/
+    foreach:
+      - DglPCQM4MDataset
+      - PygPCQM4MDataset
+      - LinearPCQM4MDataset
+    do:
+      wdir: .
+      cmd: PYTHONPATH=. python3 experiments/scripts/preprocess_dataset.py --dataset ${item}
+      params:
+        - preprocess_dataset.smiles2graph
+      deps:
+        - experiments/scripts/preprocess_dataset.py
+      outs:
+        - preprocess_dataset.${item}.output_path
 
   train_supervised:
     foreach:

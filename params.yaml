@@ -2,3 +2,10 @@ preprocess_dataset:
   smiles2graph:
     cls: src.smiles.Smiles2GraphOGBConverter
     args: {}
+
+  DglPCQM4MDataset:
+    output_path: data/dataset/pcqm4m_kddcup2021/processed/dgl_data_processed
+  PygPCQM4MDataset:
+    output_path: data/dataset/pcqm4m_kddcup2021/processed/geometric_data_processed.pt
+  LinearPCQM4MDataset:
+    output_path: data/dataset/pcqm4m_kddcup2021/processed/graph_ft.pt

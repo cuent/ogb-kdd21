@@ -120,6 +120,7 @@ class LinearPCQM4MDataset:
         output_path: str = "data/dataset/pcqm4m_kddcup2021/processed/graph_ft.pt",
         raw_data_path: str = "data/dataset/pcqm4m_kddcup2021/raw/data.csv.gz",
         split_dict_path: str = "data/dataset/pcqm4m_kddcup2021/split_dict.pt",
+        smiles2graph: Optional[Callable] = None,
     ):
         self.data = None
         self.path = Path(output_path)

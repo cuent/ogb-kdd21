@@ -3,7 +3,7 @@ import json
 import os
 import random
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Any
 
 import numpy as np
 import pandas as pd
@@ -34,7 +34,7 @@ from src.training.trainer import trainer
 app = typer.Typer()
 
 
-def get_difpool_model_without_pred(cfg_path):
+def get_diffpool_model_without_pred(cfg_path):
     with open(cfg_path, "r"):
         cfg = yaml.safe_load(cfg_path)
 
@@ -53,7 +53,7 @@ def get_linear_model_without_pred(cfg_path):
 
 
 MODELS = {
-    "diffpool": get_difpool_model_without_pred,
+    "diffpool": get_diffpool_model_without_pred,
     "linear": get_linear_model_without_pred,
 }
 DATASETS = {
@@ -62,12 +62,15 @@ DATASETS = {
 }
 
 
-def get_models(
-    models_cfg: Dict[str, str], device: torch.device
-) -> torch.nn.ModuleDict:
+def get_models(cfg: Any, device: torch.device) -> torch.nn.ModuleDict:
     models = torch.nn.ModuleDict()
-    for model_name, model_cfg in models_cfg.items():
-        models[model_name] = MODELS[model_name](**model_cfg).to(device)
+    for model_cfg in cfg["models"]:
+        model_name = list(model_cfg.keys())[0]
+        cfg_path = model_cfg[model_name]["cfg"]
+        with open(cfg_path, "r") as f:
+            model_args = yaml.safe_load(f)["args"]
+
+        models[model_name] = MODELS[model_name](**model_args).to(device)
 
     return models
 
@@ -116,12 +119,10 @@ def main(
     datasets = {}
 
     for model in cfg["models"]:
-        model_ds = DATASETS[model]["name"]
+        model_name = list(model.keys())[0]
+        model_ds = DATASETS[model_name]["name"]
         if model_ds not in datasets:
-            if model_ds != "linear":
-                datasets[model_ds] = load_dataset(DATASETS[model]["cls"])
-            else:
-                datasets[model_ds] = LinearPCQM4MDataset()
+            datasets[model_ds] = load_dataset(DATASETS[model_name]["cls"])
 
     datasets["y"] = get_y()
     aggregator = DatasetAggregator(datasets)
@@ -143,7 +144,6 @@ def main(
     model = AggregatedModel(
         models=models, model_datasets=models_datasets, **cfg["args"]
     )
-
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     scheduler = StepLR(optimizer, **cfg["step_lr"])
 

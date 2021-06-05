@@ -33,33 +33,32 @@ class AggregatedModel(nn.Module):
         self.model_datasets = model_datasets
         self.models = models
 
-        self.model_linears = torch.nn.ModuleList(
+        self.model_linears = nn.ModuleDict(
             {
-                model_name: torch.nn.Linear(
+                model_name: nn.Linear(
                     in_features=num_features["in"],
                     out_features=num_features["out"],
                 )
                 for model_name, num_features in linear_features.items()
             }
         )
-
         sum_in_features = np.sum([it["out"] for it in linear_features.values()])
-        self.output_features = torch.nn.Linear(
-            in_features=int(sum_in_features), out_features=output_features
+
+        self.predictor = nn.Sequential(
+            nn.Linear(
+                in_features=int(sum_in_features), out_features=output_features
+            ),
+            nn.ReLU(),
+            nn.BatchNorm1d(output_features),
+            nn.Linear(in_features=output_features, out_features=1),
         )
-        self.output_features_bn = torch.nn.BatchNorm1d(output_features)
-        self.pred_layer = torch.nn.Linear(
-            in_features=output_features, out_features=1
-        )
-        self.relu = nn.ReLU()
 
     def forward(self, batch):
         outs = []
-        for model, layer in self.models:
-            layer_outs = layer(batch[self.model_datasets[model]])
-            layer_outs = self.model_linears[model](layer_outs)
+        for name, model in self.models:
+            layer_outs = model(batch[self.model_datasets[name]])
+            layer_outs = self.model_linears[name](layer_outs)
             outs.append(layer_outs)
 
         outs = torch.cat(outs)
-        outs = self.output_features_bn(self.relu(self.output_features(outs)))
-        return self.pred_layer(outs)
+        return self.predictor(outs)

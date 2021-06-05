@@ -4,7 +4,6 @@ models:
   - linear:
       cfg: experiments/configs/linear.yaml
 
-
 args:
   linear_features:
     - diffpool:
@@ -15,3 +14,14 @@ args:
         out: 16
   output_features: 300
 
+data_loader_args:
+  batch_size: 256
+
+learning_args:
+  epochs: 1
+
+step_lr:
+  step_size: 300
+  gamma: 0.25
+
+reg: torch.nn.L1Loss

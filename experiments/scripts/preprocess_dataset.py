@@ -15,7 +15,7 @@ DATASETS = {
 }
 
 
-def main(dataset: str = typer.Option(..., help="Dataset path")):
+def main(dataset: str = typer.Option(..., help="Dataset name")):
     with open("params.yaml", "r") as f:
         cfg = yaml.safe_load(f)["datasets"][dataset]
 

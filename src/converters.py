@@ -30,5 +30,5 @@ def smiles2graphft(smiles: str):
 
     calculator = MoleculeDescriptors.MolecularDescriptorCalculator(des_list)
     graph_features_list = list(calculator.CalcDescriptors(mol))
-    gf = np.array(graph_features_list, dtype=np.int64)
+    gf = np.array(graph_features_list, dtype=np.float32)
     return gf

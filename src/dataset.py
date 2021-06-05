@@ -117,14 +117,20 @@ def get_data_loaders(
 class LinearPCQM4MDataset:
     def __init__(
         self,
-        output_path: str = "data/dataset/pcqm4m_kddcup2021/processed/graph_ft.pt",
-        raw_data_path: str = "data/dataset/pcqm4m_kddcup2021/raw/data.csv.gz",
-        split_dict_path: str = "data/dataset/pcqm4m_kddcup2021/split_dict.pt",
+        smiles2graph: Callable,
+        root: str = "data/dataset/",
     ):
         self.data = None
-        self.path = Path(output_path)
-        self.raw_path = Path(raw_data_path)
-        self.split_dict_path = Path(split_dict_path)
+        self.root = Path(root)
+        self.smiles2graph = smiles2graph
+
+        self.path = self.root.joinpath(
+            "pcqm4m_kddcup2021/processed/graph_ft.pt"
+        )
+        self.raw_path = self.root.joinpath("pcqm4m_kddcup2021/raw/data.csv.gz")
+        self.split_dict_path = self.root.joinpath(
+            "pcqm4m_kddcup2021/split_dict.pt"
+        )
 
         if not self.path.exists():
             self.process()
@@ -164,9 +170,9 @@ class LinearPCQM4MDataset:
                 "data": [data[it] for it in splits["test"]],
                 "split": splits["test"],
             },
-            "dev": {
-                "data": [data[it] for it in splits["dev"]],
-                "split": splits["dev"],
+            "valid": {
+                "data": [data[it] for it in splits["valid"]],
+                "split": splits["valid"],
             },
         }
 
@@ -177,8 +183,8 @@ class LinearPCQM4MDataset:
         splitted_data["test"]["data"] = scaler.transform(
             splitted_data["test"]["data"]
         )
-        splitted_data["dev"]["data"] = scaler.transform(
-            splitted_data["dev"]["data"]
+        splitted_data["valid"]["data"] = scaler.transform(
+            splitted_data["valid"]["data"]
         )
 
         out = torch.zeros(size=data.shape)
@@ -240,7 +246,7 @@ class AggregateCollater:
         dgl_batch = collate_dgl(samples)[:-1]
         n_features = dgl_batch.ndata.pop("feat")
         e_features = dgl_batch.edata.pop("feat")
-        return (dgl_batch, n_features, e_features)
+        return dgl_batch, n_features, e_features
 
     @staticmethod
     def collate_torch_agg(samples):

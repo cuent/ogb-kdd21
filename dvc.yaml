@@ -5,7 +5,7 @@ stages:
       wdir: .
       cmd: PYTHONPATH=. python3 experiments/scripts/preprocess_dataset.py --dataset ${item.name}
       deps:
-        - datasets.${item.name}.smiles2graph
+        - params.yaml
         - experiments/scripts/preprocess_dataset.py
       outs:
         - ${item.output_path}

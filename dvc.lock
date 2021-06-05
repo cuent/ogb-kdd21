@@ -23,9 +23,9 @@ stages:
       --log-dir data/supervised/diffpool/logs
     deps:
     - path: data/dataset/
-      md5: b73ffb2c0b23563450be11ad150e6806.dir
-      size: 20116395933
-      nfiles: 7
+      md5: f8cc4f2c0174635bcb124309b00573da.dir
+      size: 20435887006
+      nfiles: 8
     params:
       experiments/configs/diffpool.yaml:
         args:
@@ -55,13 +55,11 @@ stages:
       PygPCQM4MDataset
     deps:
     - path: experiments/scripts/preprocess_dataset.py
-      md5: f2501ed04075596c770fb00c37d2bc44
-      size: 765
-    params:
-      params.yaml:
-        preprocess_dataset.smiles2graph:
-          cls: src.smiles.Smiles2GraphOGBConverter
-          args: {}
+      md5: 00c6ec41f99db9ea2c726f82f2935d20
+      size: 764
+    - path: params.yaml
+      md5: b82edea341646bf25fd546adde5813c0
+      size: 626
     outs:
     - path: data/dataset/pcqm4m_kddcup2021/processed/geometric_data_processed.pt
       md5: d3d5134387a081ede17855f5d0d812c4
@@ -71,14 +69,26 @@ stages:
       LinearPCQM4MDataset
     deps:
     - path: experiments/scripts/preprocess_dataset.py
-      md5: f2501ed04075596c770fb00c37d2bc44
-      size: 765
-    params:
-      params.yaml:
-        preprocess_dataset.smiles2graph:
-          cls: src.smiles.Smiles2GraphOGBConverter
-          args: {}
+      md5: 00c6ec41f99db9ea2c726f82f2935d20
+      size: 764
+    - path: params.yaml
+      md5: b82edea341646bf25fd546adde5813c0
+      size: 626
     outs:
     - path: data/dataset/pcqm4m_kddcup2021/processed/graph_ft.pt
       md5: 08245ed3273583de3ab362b702ad4d35
       size: 319491073
+  preprocess_dataset@DglPCQM4MDataset:
+    cmd: PYTHONPATH=. python3 experiments/scripts/preprocess_dataset.py --dataset
+      DglPCQM4MDataset
+    deps:
+    - path: experiments/scripts/preprocess_dataset.py
+      md5: 00c6ec41f99db9ea2c726f82f2935d20
+      size: 764
+    - path: params.yaml
+      md5: b82edea341646bf25fd546adde5813c0
+      size: 626
+    outs:
+    - path: data/dataset/pcqm4m_kddcup2021/processed/dgl_data_processed
+      md5: bb048e32b9e0e2685c66111af087662c
+      size: 11577611202

@@ -17,7 +17,8 @@ import src.utils
 from src.dataset import (
     load_dataset,
     get_data_loaders,
-    get_dgl_dataloaders,
+    get_torch_dataloaders,
+    collate_dgl,
 )
 from src.pyg.models.bayesian_gnn import BayesianGNN
 from src.pyg.models.gnn import GNN
@@ -103,8 +104,15 @@ def main(
             **cfg["data_loader_args"],
         )
     else:
-        train_loader, valid_loader, test_loader = get_dgl_dataloaders(
-            dataset=dataset, num_workers=num_workers, **cfg["data_loader_args"]
+        split_idx["train"] = split_idx["train"].type(torch.LongTensor)
+        split_idx["test"] = split_idx["test"].type(torch.LongTensor)
+        split_idx["valid"] = split_idx["valid"].type(torch.LongTensor)
+        train_loader, valid_loader, test_loader = get_torch_dataloaders(
+            dataset=dataset,
+            num_workers=num_workers,
+            split_idx=split_idx,
+            collate_fn=collate_dgl,
+            **cfg["data_loader_args"],
         )
 
     if checkpoint_dir != "":

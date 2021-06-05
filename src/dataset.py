@@ -117,15 +117,15 @@ def get_data_loaders(
 class LinearPCQM4MDataset:
     def __init__(
         self,
-        output_path: str = "data/dataset/pcqm4m_kddcup2021/processed/graph_ft.pt",
-        raw_data_path: str = "data/dataset/pcqm4m_kddcup2021/raw/data.csv.gz",
-        split_dict_path: str = "data/dataset/pcqm4m_kddcup2021/split_dict.pt",
+        root: str = "data/dataset/pcqm4m_kddcup2021/",
         smiles2graph: Optional[Callable] = None,
     ):
         self.data = None
-        self.path = Path(output_path)
-        self.raw_path = Path(raw_data_path)
-        self.split_dict_path = Path(split_dict_path)
+        self.root = Path(root)
+
+        self.path = self.root.joinpath("processed/graph_ft.pt")
+        self.raw_path = self.root.joinpath("raw/data.csv.gz")
+        self.split_dict_path = self.root.joinpath("split_dict.pt")
 
         if not self.path.exists():
             self.process()

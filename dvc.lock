@@ -50,3 +50,35 @@ stages:
       md5: 1b0b549409741e30d256b001650e194f.dir
       size: 94434306
       nfiles: 3
+  preprocess_dataset@PygPCQM4MDataset:
+    cmd: PYTHONPATH=. python3 experiments/scripts/preprocess_dataset.py --dataset
+      PygPCQM4MDataset
+    deps:
+    - path: experiments/scripts/preprocess_dataset.py
+      md5: f2501ed04075596c770fb00c37d2bc44
+      size: 765
+    params:
+      params.yaml:
+        preprocess_dataset.smiles2graph:
+          cls: src.smiles.Smiles2GraphOGBConverter
+          args: {}
+    outs:
+    - path: data/dataset/pcqm4m_kddcup2021/processed/geometric_data_processed.pt
+      md5: d3d5134387a081ede17855f5d0d812c4
+      size: 8451179131
+  preprocess_dataset@LinearPCQM4MDataset:
+    cmd: PYTHONPATH=. python3 experiments/scripts/preprocess_dataset.py --dataset
+      LinearPCQM4MDataset
+    deps:
+    - path: experiments/scripts/preprocess_dataset.py
+      md5: f2501ed04075596c770fb00c37d2bc44
+      size: 765
+    params:
+      params.yaml:
+        preprocess_dataset.smiles2graph:
+          cls: src.smiles.Smiles2GraphOGBConverter
+          args: {}
+    outs:
+    - path: data/dataset/pcqm4m_kddcup2021/processed/graph_ft.pt
+      md5: 08245ed3273583de3ab362b702ad4d35
+      size: 319491073

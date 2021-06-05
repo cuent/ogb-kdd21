@@ -5,8 +5,11 @@ preprocess_dataset:
 
 datasets:
   DglPCQM4MDataset:
+    name: DglPCQM4MDataset
     output_path: data/dataset/pcqm4m_kddcup2021/processed/dgl_data_processed
   PygPCQM4MDataset:
+    name: PygPCQM4MDataset
     output_path: data/dataset/pcqm4m_kddcup2021/processed/geometric_data_processed.pt
   LinearPCQM4MDataset:
+    name: LinearPCQM4MDataset
     output_path: data/dataset/pcqm4m_kddcup2021/processed/graph_ft.pt

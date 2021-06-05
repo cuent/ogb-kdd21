@@ -34,20 +34,14 @@ from src.training.trainer import trainer
 app = typer.Typer()
 
 
-def get_diffpool_model_without_pred(cfg_path):
-    with open(cfg_path, "r"):
-        cfg = yaml.safe_load(cfg_path)
-
-    model = DiffPoolGNN(**cfg["args"])
+def get_diffpool_model_without_pred(model_args):
+    model = DiffPoolGNN(**model_args)
     model.graph_pred_linear = Identity()
     return model
 
 
-def get_linear_model_without_pred(cfg_path):
-    with open(cfg_path, "r"):
-        cfg = yaml.safe_load(cfg_path)
-
-    model = LinearModel(**cfg["args"])
+def get_linear_model_without_pred(model_args):
+    model = LinearModel(model_args)
     model.layer_out = Identity()
     return model
 
@@ -70,7 +64,7 @@ def get_models(cfg: Any, device: torch.device) -> torch.nn.ModuleDict:
         with open(cfg_path, "r") as f:
             model_args = yaml.safe_load(f)["args"]
 
-        models[model_name] = MODELS[model_name](**model_args).to(device)
+        models[model_name] = MODELS[model_name](model_args).to(device)
 
     return models
 
@@ -114,7 +108,7 @@ def main(
         "cuda:" + str(device) if torch.cuda.is_available() else "cpu"
     )
 
-    models = get_models(cfg["models"], device=device)
+    models = get_models(cfg, device=device)
     models_datasets = {model: DATASETS[model]["name"] for model in models}
     datasets = {}
 

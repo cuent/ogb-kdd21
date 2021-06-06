@@ -3,7 +3,7 @@ args:
   emb_dim: 600
 
 learning_args:
-  epochs: 15
+  epochs: 30
 
 step_lr:
   step_size: 5

@@ -1,0 +1,18 @@
+args:
+  graph_pooling: sum
+  drop_ratio: 0
+  num_layers: 5
+  emb_dim: 600
+
+learning_args:
+  epochs: 1
+
+step_lr:
+  step_size: 300
+  gamma: 0.25
+
+data_loader_args:
+  batch_size: 256
+
+dataset: ogb.lsc.PygPCQM4MDataset
+reg: torch.nn.L1Loss

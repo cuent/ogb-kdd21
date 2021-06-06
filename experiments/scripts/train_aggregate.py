@@ -11,7 +11,7 @@ import torch
 import torch.optim as optim
 import typer
 import yaml
-from ogb.lsc import DglPCQM4MDataset
+from ogb.lsc import PygPCQM4MDataset,DglPCQM4MDataset
 from ogb.lsc import PCQM4MEvaluator
 from torch.nn import Identity
 from torch.optim.lr_scheduler import StepLR
@@ -26,6 +26,7 @@ from src.dataset import (
     AggregateCollater,
 )
 from src.dgl.models.diffpool import DiffPoolGNN
+from src.pyg.models.gnn import GNN
 from src.models import AggregatedModel
 from src.models import LinearModel
 from src.training.pyg import pyg_train, pyg_eval, pyg_test
@@ -46,12 +47,21 @@ def get_linear_model_without_pred(model_args):
     return model
 
 
+def get_gin_virtual_model_without_pred(model_args):
+    model = GNN(gnn_type="gin", virtual_node=True, **model_args)
+    model.graph_pred_linear = Identity()
+    return model
+
+
+
 MODELS = {
     "diffpool": get_diffpool_model_without_pred,
     "linear": get_linear_model_without_pred,
+    "gin-virtual": get_gin_virtual_model_without_pred,
 }
 DATASETS = {
     "diffpool": {"name": "dgl", "cls": DglPCQM4MDataset},
+    "gin-virtual": {"name": "pyg", "cls": PygPCQM4MDataset},
     "linear": {"name": "linear", "cls": LinearPCQM4MDataset},
 }
 
@@ -143,7 +153,7 @@ def main(
     model = AggregatedModel(
         models=models, model_datasets=model_datasets, device=device, **cfg["args"]
     ).to(device)
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.Adam(model.parameters(), lr=5e-4, weight_decay=1e-4)
     scheduler = StepLR(optimizer, **cfg["step_lr"])
 
     writer = None

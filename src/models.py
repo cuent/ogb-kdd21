@@ -6,17 +6,22 @@ from torch import nn
 
 
 class LinearModel(nn.Module):
-    def __init__(self, num_features: int, out_features: int = 16):
+    def __init__(self, in_features: int, out_features: int = 16):
         super(LinearModel, self).__init__()
 
-        self.linear = nn.Linear(num_features, out_features)
+        self.linear = nn.Linear(in_features, out_features)
         self.bn = nn.BatchNorm1d(out_features)
         self.layer_out = nn.Linear(out_features, 1)
 
         self.relu = nn.ReLU()
 
     def forward(self, inputs):
-        x = self.relu(self.bn(self.liner(inputs)))
+        try:
+            x = self.bn(self.relu(self.linear(inputs)))
+        except:
+            print(inputs.shape)
+            print(inputs)
+            breakpoint()
         x = self.layer_out(x)
         return x
 
@@ -27,11 +32,13 @@ class AggregatedModel(nn.Module):
         models: torch.nn.ModuleDict,
         model_datasets: Dict[str, str],
         linear_features: Dict[str, Dict[str, int]],
+        device: str,
         output_features: int = 300,
     ):
         super().__init__()
         self.model_datasets = model_datasets
         self.models = models
+        self.device = device
 
         self.model_linears = nn.ModuleDict(
             {
@@ -55,10 +62,15 @@ class AggregatedModel(nn.Module):
 
     def forward(self, batch):
         outs = []
-        for name, model in self.models:
-            layer_outs = model(batch[self.model_datasets[name]])
+        for name, model in self.models.items():
+            ds = self.model_datasets[name]
+            if ds == "dgl":
+                layer_outs = model(*batch[ds])
+            else:
+                layer_outs = model(batch[ds])
+                 
             layer_outs = self.model_linears[name](layer_outs)
             outs.append(layer_outs)
-
-        outs = torch.cat(outs)
+        
+        outs = torch.cat(outs, dim=1).to(self.device)
         return self.predictor(outs)

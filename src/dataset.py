@@ -37,13 +37,12 @@ def collate_dgl(samples):
 
 
 def get_torch_dataloaders(
-    dataset: DglPCQM4MDataset,
+    dataset: Any,
     split_idx: Dict[str, torch.tensor],
     batch_size: int,
     num_workers: int,
     collate_fn: Callable,
 ):
-
     train_loader = torch.utils.data.DataLoader(
         dataset[split_idx["train"]],
         batch_size=batch_size,
@@ -121,6 +120,7 @@ class LinearPCQM4MDataset:
         root: str = "data/dataset/",
     ):
         self.data = None
+        self.labels = None
         self.root = Path(root)
         self.smiles2graph = smiles2graph
 
@@ -137,11 +137,14 @@ class LinearPCQM4MDataset:
 
         self.load()
 
+    def __len__(self):
+        return len(self.data)
+
     def __getitem__(self, idx):
         return self.data[idx]
 
     def load(self):
-        self.data = torch.load(self.path)
+        self.data, self.labels = torch.load(self.path)
 
     def process(self):
         with gzip.open(self.raw_path, "rb") as f:
@@ -196,7 +199,7 @@ class LinearPCQM4MDataset:
         return out
 
 
-class DatasetAggregator(torch.utils.data.Dataset):
+class DatasetAggregator:
     def __init__(
         self, datasets: Dict[str, Union[torch.utils.data.Dataset, object]]
     ) -> None:
@@ -204,13 +207,24 @@ class DatasetAggregator(torch.utils.data.Dataset):
 
     def get_ds_item(self, ds: str, idx: int):
         return self.datasets.get(ds)[idx]
-
-    def __getitem__(self, idx: int) -> Dict[str, torch.tensor]:
+    
+    def get_row(self, idx: int) -> Dict[str, torch.tensor]:
+        if not isinstance(idx, int):
+            raise ValueError("Idx is not int. ", idx)
+            
         return {
             ds: self.get_ds_item(ds, idx)
             for ds, values in self.datasets.items()
         }
 
+    def __getitem__(self, idx: int) -> Dict[str, torch.tensor]:
+        if torch.is_tensor(idx):
+            return [
+                self.get_row(row.item())
+                for row in idx
+            ]
+        return self.get_row(idx)
+    
     def __len__(self):
         return len(self.datasets[list(self.datasets.keys())[0]])
 
@@ -220,7 +234,7 @@ class AggregateCollater:
         self.COLLATER_MAPPING = {
             "pyg": AggregateCollater.collate_pyg_agg,
             "dgl": AggregateCollater.collate_dgl_agg,
-            "ft": AggregateCollater.collate_torch_agg,
+            "linear": AggregateCollater.collate_torch_agg,
             "y": AggregateCollater.collate_y,
         }
         self.keys = keys
@@ -243,11 +257,11 @@ class AggregateCollater:
 
     @staticmethod
     def collate_dgl_agg(samples):
-        dgl_batch = collate_dgl(samples)[:-1]
+        dgl_batch = collate_dgl(samples)[0]
         n_features = dgl_batch.ndata.pop("feat")
         e_features = dgl_batch.edata.pop("feat")
         return dgl_batch, n_features, e_features
 
     @staticmethod
     def collate_torch_agg(samples):
-        return torch.stack([it[0] for it in samples])
+        return torch.stack(samples)

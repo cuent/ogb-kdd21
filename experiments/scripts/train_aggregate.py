@@ -41,7 +41,7 @@ def get_diffpool_model_without_pred(model_args):
 
 
 def get_linear_model_without_pred(model_args):
-    model = LinearModel(model_args)
+    model = LinearModel(**model_args)
     model.layer_out = Identity()
     return model
 
@@ -52,7 +52,7 @@ MODELS = {
 }
 DATASETS = {
     "diffpool": {"name": "dgl", "cls": DglPCQM4MDataset},
-    "linear": {"mame": "linear", "cls": LinearPCQM4MDataset},
+    "linear": {"name": "linear", "cls": LinearPCQM4MDataset},
 }
 
 
@@ -61,6 +61,7 @@ def get_models(cfg: Any, device: torch.device) -> torch.nn.ModuleDict:
     for model_cfg in cfg["models"]:
         model_name = list(model_cfg.keys())[0]
         cfg_path = model_cfg[model_name]["cfg"]
+
         with open(cfg_path, "r") as f:
             model_args = yaml.safe_load(f)["args"]
 
@@ -76,7 +77,7 @@ def get_y(
         raw_data = pd.read_csv(f)
 
     hg = raw_data["homolumogap"].values
-    hg = torch.from_numpy(hg).view(-1, 1)
+    hg = torch.from_numpy(hg)
     return hg
 
 
@@ -109,12 +110,14 @@ def main(
     )
 
     models = get_models(cfg, device=device)
-    models_datasets = {model: DATASETS[model]["name"] for model in models}
+    
     datasets = {}
-
+    model_datasets = {}
     for model in cfg["models"]:
         model_name = list(model.keys())[0]
         model_ds = DATASETS[model_name]["name"]
+       
+        model_datasets[model_name] = model_ds
         if model_ds not in datasets:
             datasets[model_ds] = load_dataset(DATASETS[model_name]["cls"])
 
@@ -122,8 +125,10 @@ def main(
     aggregator = DatasetAggregator(datasets)
     split_idx = torch.load(
         "data/dataset/pcqm4m_kddcup2021/split_dict.pt"
-    ).astype(torch.LongTensor)
+    )
 
+    split_idx = {k: torch.from_numpy(v).to(dtype=torch.long) for k,v in split_idx.items()}
+    
     train_loader, valid_loader, test_loader = get_torch_dataloaders(
         dataset=aggregator,
         split_idx=split_idx,
@@ -136,8 +141,8 @@ def main(
     evaluator = PCQM4MEvaluator()
 
     model = AggregatedModel(
-        models=models, model_datasets=models_datasets, **cfg["args"]
-    )
+        models=models, model_datasets=model_datasets, device=device, **cfg["args"]
+    ).to(device)
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     scheduler = StepLR(optimizer, **cfg["step_lr"])
 

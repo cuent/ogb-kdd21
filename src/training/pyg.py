@@ -14,7 +14,7 @@ def pyg_train(
     loss_accum = 0
 
     for step, batch in enumerate(tqdm(loader, desc="Iteration")):
-        if isinstance(batch, torch_geometric.data.batch):
+        if isinstance(batch, torch_geometric.data.batch.Batch):
             batch = batch.to(device)
             y = batch.y
         else:
@@ -45,7 +45,7 @@ def pyg_eval(model, device, loader, evaluator):
     y_pred = []
 
     for step, batch in enumerate(tqdm(loader, desc="Iteration")):
-        if isinstance(batch, torch_geometric.data.batch):
+        if isinstance(batch, torch_geometric.data.batch.Batch):
             batch = batch.to(device)
             y = batch.y
         else:
@@ -73,7 +73,7 @@ def pyg_test(model, device, loader):
     y_pred = []
 
     for step, batch in enumerate(tqdm(loader, desc="Iteration")):
-        if isinstance(batch, torch_geometric.data.batch):
+        if isinstance(batch, torch_geometric.data.batch.Batch):
             batch = batch.to(device)
         else:
             batch = move_to(obj=batch, device=device)

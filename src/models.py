@@ -68,9 +68,9 @@ class AggregatedModel(nn.Module):
                 layer_outs = model(*batch[ds])
             else:
                 layer_outs = model(batch[ds])
-                 
+
             layer_outs = self.model_linears[name](layer_outs)
             outs.append(layer_outs)
-        
+
         outs = torch.cat(outs, dim=1).to(self.device)
         return self.predictor(outs)

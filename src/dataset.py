@@ -207,11 +207,11 @@ class DatasetAggregator:
 
     def get_ds_item(self, ds: str, idx: int):
         return self.datasets.get(ds)[idx]
-    
+
     def get_row(self, idx: int) -> Dict[str, torch.tensor]:
         if not isinstance(idx, int):
             raise ValueError("Idx is not int. ", idx)
-            
+
         return {
             ds: self.get_ds_item(ds, idx)
             for ds, values in self.datasets.items()
@@ -219,12 +219,9 @@ class DatasetAggregator:
 
     def __getitem__(self, idx: int) -> Dict[str, torch.tensor]:
         if torch.is_tensor(idx):
-            return [
-                self.get_row(row.item())
-                for row in idx
-            ]
+            return [self.get_row(row.item()) for row in idx]
         return self.get_row(idx)
-    
+
     def __len__(self):
         return len(self.datasets[list(self.datasets.keys())[0]])
 

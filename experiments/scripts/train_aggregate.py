@@ -110,25 +110,26 @@ def main(
     )
 
     models = get_models(cfg, device=device)
-    
+
     datasets = {}
     model_datasets = {}
     for model in cfg["models"]:
         model_name = list(model.keys())[0]
         model_ds = DATASETS[model_name]["name"]
-       
+
         model_datasets[model_name] = model_ds
         if model_ds not in datasets:
             datasets[model_ds] = load_dataset(DATASETS[model_name]["cls"])
 
     datasets["y"] = get_y()
     aggregator = DatasetAggregator(datasets)
-    split_idx = torch.load(
-        "data/dataset/pcqm4m_kddcup2021/split_dict.pt"
-    )
+    split_idx = torch.load("data/dataset/pcqm4m_kddcup2021/split_dict.pt")
 
-    split_idx = {k: torch.from_numpy(v).to(dtype=torch.long) for k,v in split_idx.items()}
-    
+    split_idx = {
+        k: torch.from_numpy(v).to(dtype=torch.long)
+        for k, v in split_idx.items()
+    }
+
     train_loader, valid_loader, test_loader = get_torch_dataloaders(
         dataset=aggregator,
         split_idx=split_idx,
@@ -141,7 +142,10 @@ def main(
     evaluator = PCQM4MEvaluator()
 
     model = AggregatedModel(
-        models=models, model_datasets=model_datasets, device=device, **cfg["args"]
+        models=models,
+        model_datasets=model_datasets,
+        device=device,
+        **cfg["args"],
     ).to(device)
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     scheduler = StepLR(optimizer, **cfg["step_lr"])

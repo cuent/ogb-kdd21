@@ -36,16 +36,15 @@ def smiles2graphft(smiles: str):
 
 
 def atom_to_new_feature_vector(atom):
-    atom_new_features = {
-        'explicit_valence': atom.GetExplicitValence(),
-        'implicit_valence': atom.GetImplicitValence(),
-        'isotope': atom.GetIsotope(),
-        'mass': atom.GetMass(),
-        'no_implicit': int(atom.GetNoImplicit()),
-        'explicit_hs': atom.GetNumExplicitHs(),
-        'total_valence': atom.GetTotalValence()
-    }
-    return list(atom_new_features.values())
+    return [
+        atom.GetExplicitValence(),
+        atom.GetImplicitValence(),
+        atom.GetIsotope(),
+        atom.GetMass(),
+        int(atom.GetNoImplicit()),
+        atom.GetNumExplicitHs(),
+        atom.GetTotalValence(),
+    ]
 
 
 def smiles2graph_enchanced(smiles_string):
@@ -61,8 +60,7 @@ def smiles2graph_enchanced(smiles_string):
     atom_features_list = []
     for atom in mol.GetAtoms():
         atom_features_list.append(
-            *atom_to_feature_vector(atom)
-            *atom_to_new_feature_vector(atom)
+            *atom_to_feature_vector(atom) * atom_to_new_feature_vector(atom)
         )
     x = np.array(atom_features_list, dtype=np.int64)
 

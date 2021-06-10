@@ -1,38 +1,22 @@
 schema: '2.0'
 stages:
-  preprocess_dataset:
-    cmd: PYTHONPATH=. python3 experiments/scripts/preprocess_dataset.py
-    deps:
-    - path: experiments/scripts/preprocess_dataset.py
-      md5: e318decabafbc20513b3b0184505ffc3
-      size: 540
-    params:
-      params.yaml:
-        preprocess_dataset.smiles2graph:
-          cls: src.smiles.Smiles2GraphOGBConverter
-          args: {}
-    outs:
-    - path: data/dataset/
-      md5: b73ffb2c0b23563450be11ad150e6806.dir
-      size: 20116395933
-      nfiles: 7
   train_supervised@diffpool:
     cmd: PYTHONPATH=. python3 experiments/scripts/train_supervised.py --model-name
       diffpool --config-path experiments/configs/diffpool.yaml --checkpoint-dir data/supervised/diffpool/checkpoints
       --save-test-dir data/supervised/diffpool/submssion --metrics-path data/metrics/supervised/diffpool.json
       --log-dir data/supervised/diffpool/logs
     deps:
-    - path: data/dataset/
-      md5: f8cc4f2c0174635bcb124309b00573da.dir
-      size: 20435887006
-      nfiles: 8
+    - path: data/dataset/pcqm4m_kddcup2021/processed/
+      md5: 64357964c6c6b0c952118406da05a266.dir
+      size: 27244718339
+      nfiles: 5
     params:
       experiments/configs/diffpool.yaml:
         args:
           graph_pooling: sum
           drop_ratio: 0
           num_layers: 5
-          emb_dim: 600
+          emb_dim: 150
         data_loader_args:
           batch_size: 256
         dataset: ogb.lsc.DglPCQM4MDataset
@@ -44,11 +28,11 @@ stages:
           gamma: 0.25
     outs:
     - path: data/metrics/supervised/diffpool.json
-      md5: 4a0fff2b6ef9d11c0379d34e5c40c262
-      size: 150
+      md5: c361b3354378b48868aa97469ed3e894
+      size: 148
     - path: data/supervised/diffpool/
-      md5: 1b0b549409741e30d256b001650e194f.dir
-      size: 94434306
+      md5: 60eb5701d23402f13a034c081aa94299.dir
+      size: 7805827
       nfiles: 3
   preprocess_dataset@PygPCQM4MDataset:
     cmd: PYTHONPATH=. python3 experiments/scripts/preprocess_dataset.py --dataset

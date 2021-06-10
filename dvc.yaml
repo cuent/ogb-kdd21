@@ -25,7 +25,7 @@ stages:
             - dataset
             - reg
       deps:
-        - data/dataset/
+        - data/dataset/pcqm4m_kddcup2021/processed/
       metrics:
         - data/metrics/supervised/${item}.json:
             cache: false

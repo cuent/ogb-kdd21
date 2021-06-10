@@ -36,16 +36,16 @@ class DiffPoolGNN(GNN):
         # 2x number of outputs
         self.graph_pred_linear = nn.Linear(2 * self.emb_dim, self.num_tasks)
         self.first_diffpool_layer = DiffPoolBatchedGraphLayer(
-            input_dim=600,  # graph embedding dimension
+            input_dim=emb_dim,  # graph embedding dimension
             assign_dim=5,  # group to 10
-            output_feat_dim=600,
+            output_feat_dim=emb_dim,
             activation=F.relu,
             dropout=0.0,
             aggregator_type="meanpool",
             link_pred=False,
         )
 
-        self.gc_after_pool = BatchedGraphSAGE(600, 600)
+        self.gc_after_pool = BatchedGraphSAGE(emb_dim, emb_dim)
 
     def forward(self, g, x, edge_attr):
         # 1. GCN: 3628x9 -> 3628x600

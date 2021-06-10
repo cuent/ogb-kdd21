@@ -1,13 +1,14 @@
 stages:
   preprocess_dataset:
-    wdir: .
-    cmd: PYTHONPATH=. python3 experiments/scripts/preprocess_dataset.py
-    params:
-      - preprocess_dataset.smiles2graph
-    deps:
-      - experiments/scripts/preprocess_dataset.py
-    outs:
-      - data/dataset/
+    foreach: ${datasets} # From params.yaml
+    do:
+      wdir: .
+      cmd: PYTHONPATH=. python3 experiments/scripts/preprocess_dataset.py --dataset ${item.name}
+      deps:
+        - params.yaml
+        - experiments/scripts/preprocess_dataset.py
+      outs:
+        - ${item.output_path}
 
   train_supervised:
     foreach:
@@ -24,7 +25,7 @@ stages:
             - dataset
             - reg
       deps:
-        - data/dataset/
+        - data/dataset/pcqm4m_kddcup2021/processed/
       metrics:
         - data/metrics/supervised/${item}.json:
             cache: false

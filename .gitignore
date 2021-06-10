@@ -132,7 +132,9 @@ dmypy.json
 .idea/
 
 # Data directory
-/data
+data/*/*/*
+!data/dataset/pcqm4m_kddcup2021/raw.dvc
+!data/dataset/pcqm4m_kddcup2021/split_dict.pt.dvc
 
 # Others
 load-env.sh

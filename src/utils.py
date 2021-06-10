@@ -28,3 +28,20 @@ def get_module_from_str(module: str) -> Any:
     module, cls = module.rsplit(".", maxsplit=1)
     cls = getattr(importlib.import_module(module), cls)
     return cls
+
+
+def move_to(obj, device):
+    if hasattr(obj, "to"):
+        return obj.to(device)
+    elif isinstance(obj, dict):
+        res = {}
+        for k, v in obj.items():
+            res[k] = move_to(v, device)
+        return res
+    elif isinstance(obj, list) or isinstance(obj, tuple):
+        res = []
+        for v in obj:
+            res.append(move_to(v, device))
+        return res
+    else:
+        raise TypeError(type(obj), "Invalid type for move_to")

@@ -17,7 +17,8 @@ import src.utils
 from src.dataset import (
     load_dataset,
     get_data_loaders,
-    get_dgl_dataloaders,
+    get_torch_dataloaders,
+    collate_dgl,
 )
 from src.pyg.models.bayesian_gnn import BayesianGNN
 from src.pyg.models.gnn import GNN
@@ -70,9 +71,9 @@ def main(
     metrics_path: str = typer.Option("", help="metrics path"),
     pyg_train_subset: bool = typer.Option(False, help="Train Subset for PyG"),
 ):
-    device = os.getenv("CUDA_DEVICE", 0)
-    num_workers = os.getenv("NUM_WORKERS", 0)
-    
+    device = int(os.getenv("CUDA_DEVICE", "0"))
+    num_workers = int(os.getenv("NUM_WORKERS", "0"))
+
     # Training settings
     with open(config_path, "r") as f:
         cfg = yaml.safe_load(f)
@@ -103,8 +104,15 @@ def main(
             **cfg["data_loader_args"],
         )
     else:
-        train_loader, valid_loader, test_loader = get_dgl_dataloaders(
-            dataset=dataset, num_workers=num_workers, **cfg["data_loader_args"]
+        split_idx["train"] = split_idx["train"].type(torch.LongTensor)
+        split_idx["test"] = split_idx["test"].type(torch.LongTensor)
+        split_idx["valid"] = split_idx["valid"].type(torch.LongTensor)
+        train_loader, valid_loader, test_loader = get_torch_dataloaders(
+            dataset=dataset,
+            num_workers=num_workers,
+            split_idx=split_idx,
+            collate_fn=collate_dgl,
+            **cfg["data_loader_args"],
         )
 
     if checkpoint_dir != "":

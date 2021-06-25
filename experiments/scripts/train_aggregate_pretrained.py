@@ -78,7 +78,7 @@ def get_models(
             model,
             model_cfg[model_name]["pretrained_path"],
             test_dataloader=valid_loaders[ds_name],
-            evaluator=PCQM4MEvaluator,
+            evaluator=PCQM4MEvaluator(),
             eval_fn=DATASETS[model_type]["eval_fn"],
             device=device,
         )

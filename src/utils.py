@@ -3,6 +3,7 @@ from typing import Any
 
 import torch
 import torch as th
+from torch.nn import Identity
 
 
 def batch2tensor(batch_adj, batch_feat, node_per_pool_graph):
@@ -73,4 +74,6 @@ def load_model(
             device=device,
         ),
     )
+
+    model.graph_pred_linear = Identity()
     return model

@@ -37,28 +37,15 @@ from src.training.trainer import trainer
 app = typer.Typer()
 
 
-def get_diffpool_model_without_pred(model_args):
-    model = DiffPoolGNN(**model_args)
-    model.graph_pred_linear = Identity()
-    return model
-
-
-def get_linear_model_without_pred(model_args):
-    model = LinearModel(**model_args)
-    model.layer_out = Identity()
-    return model
-
-
-def get_gin_virtual_model_without_pred(model_args):
+def get_gin_virtual_model(model_args):
     model = GNN(gnn_type="gin", virtual_node=True, **model_args)
-    model.graph_pred_linear = Identity()
     return model
 
 
 MODELS = {
-    "diffpool": get_diffpool_model_without_pred,
-    "linear": get_linear_model_without_pred,
-    "gin-virtual": get_gin_virtual_model_without_pred,
+    "diffpool": DiffPoolGNN,
+    "linear": LinearModel,
+    "gin-virtual": get_gin_virtual_model,
 }
 DATASETS = {
     "diffpool": {"name": "dgl", "cls": DglPCQM4MDataset},

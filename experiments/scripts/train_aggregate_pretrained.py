@@ -174,7 +174,7 @@ def main(
     model = AggregatedModel(
         models=models,
         model_datasets=model_datasets,
-        models_mapping=models_mapping,
+        model_mapping=models_mapping,
         device=device,
         **cfg["args"],
     ).to(device)

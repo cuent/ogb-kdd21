@@ -39,7 +39,7 @@ def load_dataset_with_validloader(
         smiles2graph=smiles2graph_fn,
     )
     _, valid_loader, _ = dataloadern_fn(
-        dataset=ds, split_dict=split_dict, batch_size=256, num_workers=1
+        dataset=ds, split_idx=split_dict, batch_size=256, num_workers=1
     )
     return ds, valid_loader
 

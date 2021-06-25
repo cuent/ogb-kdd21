@@ -76,10 +76,12 @@ def get_models(
     cfg: Any, valid_loaders, device: torch.device
 ) -> torch.nn.ModuleDict:
     models = torch.nn.ModuleDict()
+    print(valid_loaders)
     for model_cfg in cfg["models"]:
         model_name = list(model_cfg.keys())[0]
         model_type = model_cfg[model_name]["model"]
         cfg_path = model_cfg[model_name]["cfg"]
+        ds_name = DATASETS[model_type]["name"]
 
         with open(cfg_path, "r") as f:
             model_args = yaml.safe_load(f)["args"]
@@ -87,8 +89,8 @@ def get_models(
         model = MODELS[model_type](model_args).to(device)
         src.utils.load_model(
             model,
-            model_cfg["pretreined_path"],
-            test_dataloader=valid_loaders[model_type],
+            model_cfg[model_name]["pretrained_path"],
+            test_dataloader=valid_loaders[ds_name],
             evaluator=PCQM4MEvaluator,
             eval_fn=DATASETS[model_type]["eval_fn"],
             device=device,
@@ -150,7 +152,8 @@ def main(
     models_mapping = {}
     for model in cfg["models"]:
         model_name = list(model.keys())[0]
-        model_type = model["model"]
+        print(model)
+        model_type = model[model_name]["model"]
         model_ds = DATASETS[model_type]["name"]
 
         models_mapping[model_name] = model_type

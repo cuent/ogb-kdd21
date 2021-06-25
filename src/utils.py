@@ -57,9 +57,11 @@ def load_model(
     device,
 ):
     # init bn
-    model(next(iter(test_dataloader)))
+    model(
+        move_to(next(iter(test_dataloader)), device)
+    )
 
-    state_dict = torch.load(checkpoint_path)
+    state_dict = torch.load(checkpoint_path)["model_state_dict"]
     model.load_state_dict(state_dict)
 
     print(

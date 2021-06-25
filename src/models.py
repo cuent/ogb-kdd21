@@ -31,12 +31,14 @@ class AggregatedModel(nn.Module):
         self,
         models: torch.nn.ModuleDict,
         model_datasets: Dict[str, str],
+        model_mapping: Dict[str, str],
         linear_features: Dict[str, Dict[str, int]],
         device: str,
         output_features: int = 300,
     ):
         super().__init__()
         self.model_datasets = model_datasets
+        self.model_mapping = model_mapping
         self.models = models
         self.device = device
 
@@ -63,7 +65,7 @@ class AggregatedModel(nn.Module):
     def forward(self, batch):
         outs = []
         for name, model in self.models.items():
-            ds = self.model_datasets[name]
+            ds = self.model_datasets[self.model_mapping[name]]
             if ds == "dgl":
                 layer_outs = model(*batch[ds])
             else:

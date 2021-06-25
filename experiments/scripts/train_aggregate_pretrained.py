@@ -21,9 +21,11 @@ import src.utils
 from src.dataset import (
     load_dataset,
     get_torch_dataloaders,
+    get_tg_data_loaders,
     LinearPCQM4MDataset,
     DatasetAggregator,
     AggregateCollater,
+    load_dataset_with_validloader,
 )
 from src.dgl.models.diffpool import DiffPoolGNN
 from src.pyg.models.gnn import GNN
@@ -60,22 +62,39 @@ MODELS = {
 }
 DATASETS = {
     "diffpool": {"name": "dgl", "cls": DglPCQM4MDataset},
-    "gin-virtual": {"name": "pyg", "cls": PygPCQM4MDataset},
+    "gin-virtual": {
+        "name": "pyg",
+        "cls": PygPCQM4MDataset,
+        "eval_fn": pyg_eval,
+        "loader_fn": get_tg_data_loaders,
+    },
     "linear": {"name": "linear", "cls": LinearPCQM4MDataset},
 }
 
 
-def get_models(cfg: Any, device: torch.device) -> torch.nn.ModuleDict:
+def get_models(
+    cfg: Any, valid_loaders, device: torch.device
+) -> torch.nn.ModuleDict:
     models = torch.nn.ModuleDict()
     for model_cfg in cfg["models"]:
         model_name = list(model_cfg.keys())[0]
+        model_type = model_cfg[model_name]["model"]
         cfg_path = model_cfg[model_name]["cfg"]
 
         with open(cfg_path, "r") as f:
             model_args = yaml.safe_load(f)["args"]
 
-        models[model_name] = MODELS[model_name](model_args).to(device)
+        model = MODELS[model_type](model_args).to(device)
+        src.utils.load_model(
+            model,
+            model_cfg["pretreined_path"],
+            test_dataloader=valid_loaders[model_type],
+            evaluator=PCQM4MEvaluator,
+            eval_fn=DATASETS[model_type]["eval_fn"],
+            device=device,
+        )
 
+        models[model_name] = model
     return models
 
 
@@ -118,26 +137,38 @@ def main(
         "cuda:" + str(device) if torch.cuda.is_available() else "cpu"
     )
 
-    models = get_models(cfg, device=device)
-
-    datasets = {}
-    model_datasets = {}
-    for model in cfg["models"]:
-        model_name = list(model.keys())[0]
-        model_ds = DATASETS[model_name]["name"]
-
-        model_datasets[model_name] = model_ds
-        if model_ds not in datasets:
-            datasets[model_ds] = load_dataset(DATASETS[model_name]["cls"])
-
-    datasets["y"] = get_y()
-    aggregator = DatasetAggregator(datasets)
     split_idx = torch.load("data/dataset/pcqm4m_kddcup2021/split_dict.pt")
 
     split_idx = {
         k: torch.from_numpy(v).to(dtype=torch.long)
         for k, v in split_idx.items()
     }
+
+    datasets = {}
+    valid_dataloaders = {}
+    model_datasets = {}
+    models_mapping = {}
+    for model in cfg["models"]:
+        model_name = list(model.keys())[0]
+        model_type = model["model"]
+        model_ds = DATASETS[model_type]["name"]
+
+        models_mapping[model_name] = model_type
+        model_datasets[model_type] = model_ds
+        if model_ds not in datasets:
+            (
+                datasets[model_ds],
+                valid_dataloaders[model_ds],
+            ) = load_dataset_with_validloader(
+                loader=DATASETS[model_type]["cls"],
+                split_dict=split_idx,
+                dataloadern_fn=DATASETS[model_type]["loader_fn"],
+            )
+
+    models = get_models(cfg, valid_dataloaders, device=device)
+
+    datasets["y"] = get_y()
+    aggregator = DatasetAggregator(datasets)
 
     train_loader, valid_loader, test_loader = get_torch_dataloaders(
         dataset=aggregator,
@@ -153,6 +184,7 @@ def main(
     model = AggregatedModel(
         models=models,
         model_datasets=model_datasets,
+        models_mapping=models_mapping,
         device=device,
         **cfg["args"],
     ).to(device)

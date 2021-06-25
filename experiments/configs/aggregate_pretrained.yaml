@@ -1,0 +1,33 @@
+models:
+  - gin-virtual-1:
+      model: gin-virtual
+      cfg: experiments/configs/gin-virtual.yaml
+      pretreined_path: data/pretrained/models/gin-virtual-run1/checkpoint/checkpoint.pt
+  - gin-virtual-2:
+      cfg: experiments/configs/gin-virtual.yaml
+      pretreined_path: data/pretrained/models/gin-virtual-run2/checkpoint/checkpoint.pt
+  - gin-virtual-3:
+      cfg: experiments/configs/gin-virtual.yaml
+      pretreined_path: data/pretrained/models/gin-virtual-run3/checkpoint/checkpoint.pt
+
+args:
+  linear_features:
+    diffpool:
+      in: 1200
+      out: 300
+    linear:
+      in: 16
+      out: 16
+  output_features: 300
+
+data_loader_args:
+  batch_size: 256
+
+learning_args:
+  epochs: 30
+
+step_lr:
+  step_size: 300
+  gamma: 0.25
+
+reg: torch.nn.L1Loss

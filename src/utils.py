@@ -1,6 +1,7 @@
 import importlib
 from typing import Any
 
+import torch
 import torch as th
 
 
@@ -45,3 +46,29 @@ def move_to(obj, device):
         return res
     else:
         raise TypeError(type(obj), "Invalid type for move_to")
+
+
+def load_model(
+    model,
+    checkpoint_path,
+    test_dataloader,
+    evaluator,
+    eval_fn,
+    device,
+):
+    # init bn
+    model(next(iter(test_dataloader)))
+
+    state_dict = torch.load(checkpoint_path)
+    model.load_state_dict(state_dict)
+
+    print(
+        "Loaded model score",
+        eval_fn(
+            model=model,
+            loader=test_dataloader,
+            evaluator=evaluator,
+            device=device,
+        ),
+    )
+    return model

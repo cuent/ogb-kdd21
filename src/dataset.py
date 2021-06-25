@@ -28,6 +28,22 @@ def load_dataset(
     )
 
 
+def load_dataset_with_validloader(
+    loader: Callable,
+    dataloadern_fn: Callable,
+    split_dict: Dict[str, torch.tensor],
+    smiles2graph_fn: Optional[Callable] = None,
+):
+    ds = loader(
+        root=os.path.join(DATA_DIR, "dataset"),
+        smiles2graph=smiles2graph_fn,
+    )
+    _, valid_loader, _ = dataloadern_fn(
+        dataset=ds, split_dict=split_dict, batch_size=256, num_workers=1
+    )
+    return ds, valid_loader
+
+
 def collate_dgl(samples):
     graphs, labels = map(list, zip(*samples))
     batched_graph = dgl.batch(graphs)
@@ -63,6 +79,51 @@ def get_torch_dataloaders(
         shuffle=False,
         num_workers=num_workers,
         collate_fn=collate_fn,
+    )
+
+    return train_loader, valid_loader, test_loader
+
+
+def get_dgl_data_loaders(
+    dataset: Any,
+    split_idx: Dict[str, torch.tensor],
+    batch_size: int,
+    num_workers: int,
+):
+    return get_torch_dataloaders(
+        dataset=dataset,
+        split_idx=split_idx,
+        batch_size=batch_size,
+        num_workers=num_workers,
+        collate_fn=collate_dgl,
+    )
+
+
+def get_tg_data_loaders(
+    dataset: Any,
+    split_idx: Dict[str, torch.tensor],
+    batch_size: int,
+    num_workers: int,
+):
+    loader_kws = dict(
+        batch_size=batch_size,
+        num_workers=num_workers,
+    )
+
+    train_loader = DataLoader(
+        dataset=dataset[split_idx["train"]],
+        shuffle=True,
+        **loader_kws,
+    )
+    valid_loader = DataLoader(
+        dataset=dataset[split_idx["valid"]],
+        shuffle=False,
+        **loader_kws,
+    )
+    test_loader = DataLoader(
+        dataset=dataset[split_idx["test"]],
+        shuffle=False,
+        **loader_kws,
     )
 
     return train_loader, valid_loader, test_loader

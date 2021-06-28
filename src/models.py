@@ -42,16 +42,16 @@ class AggregatedModel(nn.Module):
         self.models = models
         self.device = device
 
-        self.model_linears = nn.ModuleDict(
-            {
-                model_name: nn.Linear(
-                    in_features=num_features["in"],
-                    out_features=num_features["out"],
-                )
-                for model_name, num_features in linear_features.items()
-            }
-        )
-        sum_in_features = np.sum([it["out"] for it in linear_features.values()])
+        # self.model_linears = nn.ModuleDict(
+        #     {
+        #         model_name: nn.Linear(
+        #             in_features=num_features["in"],
+        #             out_features=num_features["out"],
+        #         )
+        #         for model_name, num_features in linear_features.items()
+        #     }
+        # )
+        sum_in_features = np.sum([it["in"] for it in linear_features.values()])
 
         self.predictor = nn.Sequential(
             nn.Linear(

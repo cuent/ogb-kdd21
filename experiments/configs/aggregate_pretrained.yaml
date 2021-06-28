@@ -1,34 +1,34 @@
 models:
-#  - gin-virtual-1:
-#      model: gin-virtual
-#      cfg: experiments/configs/gin-virtual.yaml
-#      pretrained_path: data/pretrained/models/gin-virtual-run1/checkpoint/checkpoint.pt
-#      freeze: True
-#
-#  - gin-virtual-2:
-#      model: gin-virtual
-#      cfg: experiments/configs/gin-virtual.yaml
-#      pretrained_path: data/pretrained/models/gin-virtual-run2/checkpoint/checkpoint.pt
-#      freeze: True
-#
-#  - gin-virtual-3:
-#      model: gin-virtual
-#      cfg: experiments/configs/gin-virtual.yaml
-#      pretrained_path: data/pretrained/models/gin-virtual-run3/checkpoint/checkpoint.pt
-#      freeze: True
-#
-#  - diffpool-2:
-#      model: diffpool
-#      cfg: experiments/configs/diffpool.yaml
-#      pretrained_path: data/pretrained/models/gin-virtual-diffpool-run2/checkpoint/checkpoint.pt
-#      freeze: True
+  - gin-virtual-1:
+      model: gin-virtual
+      cfg: experiments/configs/gin-virtual.yaml
+      pretrained_path: data/pretrained/models/gin-virtual-run1/checkpoint/checkpoint.pt
+      freeze: True
 
-#
-#  - diffpool-3:
-#      model: diffpool
-#      cfg: experiments/configs/diffpool.yaml
-#      pretrained_path: data/pretrained/models/gin-virtual-diffpool-run3/checkpoint/checkpoint.pt
-#      freeze: True
+  - gin-virtual-2:
+      model: gin-virtual
+      cfg: experiments/configs/gin-virtual.yaml
+      pretrained_path: data/pretrained/models/gin-virtual-run2/checkpoint/checkpoint.pt
+      freeze: True
+
+  - gin-virtual-3:
+      model: gin-virtual
+      cfg: experiments/configs/gin-virtual.yaml
+      pretrained_path: data/pretrained/models/gin-virtual-run3/checkpoint/checkpoint.pt
+      freeze: True
+
+  - diffpool-2:
+      model: diffpool
+      cfg: experiments/configs/diffpool.yaml
+      pretrained_path: data/pretrained/models/gin-virtual-diffpool-run2/checkpoint/checkpoint.pt
+      freeze: True
+
+
+  - diffpool-3:
+      model: diffpool
+      cfg: experiments/configs/diffpool.yaml
+      pretrained_path: data/pretrained/models/gin-virtual-diffpool-run3/checkpoint/checkpoint.pt
+      freeze: True
 
   - gin-virtual-bnn-1:
       model: gin-virtual-bnn
@@ -58,6 +58,21 @@ args:
       in: 600
       out: 100
     gin-virtual-3:
+      in: 600
+      out: 100
+    diffpool-2:
+      in: 600
+      out: 100
+    diffpool-3:
+      in: 600
+      out: 100
+    gin-virtual-bnn-1:
+      in: 600
+      out: 100
+    gin-virtual-bnn-2:
+      in: 600
+      out: 100
+    gin-virtual-bnn-3:
       in: 600
       out: 100
   output_features: 300

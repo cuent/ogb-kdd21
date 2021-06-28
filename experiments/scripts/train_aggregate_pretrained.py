@@ -27,6 +27,7 @@ from src.dataset import (
     load_dataset_with_validloader,
 )
 from src.dgl.models.diffpool import DiffPoolGNN
+from src.pyg.models.bayesian_gnn import BayesianGNN
 from src.pyg.models.gnn import GNN
 from src.models import AggregatedModel
 from src.models import LinearModel
@@ -42,10 +43,23 @@ def get_gin_virtual_model(model_args):
     return model
 
 
+def get_gin_virtual_bnn_model(model_args):
+    model = BayesianGNN(
+        gnn_type="gin", virtual_node=True, last_layer_only=True, **model_args
+    )
+    return model
+
+
+def get_diffpool_model(model_args):
+    model = DiffPoolGNN(**model_args)
+    return model
+
+
 MODELS = {
-    "diffpool": DiffPoolGNN,
+    "diffpool": get_diffpool_model,
     "linear": LinearModel,
     "gin-virtual": get_gin_virtual_model,
+    "gin-virtual-bnn": get_gin_virtual_bnn_model,
 }
 DATASETS = {
     "diffpool": {
@@ -55,6 +69,12 @@ DATASETS = {
         "loader_fn": get_dgl_data_loaders,
     },
     "gin-virtual": {
+        "name": "pyg",
+        "cls": PygPCQM4MDataset,
+        "eval_fn": pyg_eval,
+        "loader_fn": get_tg_data_loaders,
+    },
+    "gin-virtual-bnn": {
         "name": "pyg",
         "cls": PygPCQM4MDataset,
         "eval_fn": pyg_eval,
@@ -87,7 +107,7 @@ def get_models(
             eval_fn=DATASETS[model_type]["eval_fn"],
             device=device,
             freeze=model_cfg[model_name]["freeze"],
-            name=DATASETS[model_type]["name"]
+            name=DATASETS[model_type]["name"],
         )
 
         models[model_name] = model

@@ -13,15 +13,14 @@ import typer
 import yaml
 from ogb.lsc import PygPCQM4MDataset, DglPCQM4MDataset
 from ogb.lsc import PCQM4MEvaluator
-from torch.nn import Identity
 from torch.optim.lr_scheduler import StepLR
 from torch.utils.tensorboard import SummaryWriter
 
 import src.utils
 from src.dataset import (
-    load_dataset,
     get_torch_dataloaders,
     get_tg_data_loaders,
+    get_dgl_data_loaders,
     LinearPCQM4MDataset,
     DatasetAggregator,
     AggregateCollater,
@@ -32,6 +31,7 @@ from src.pyg.models.gnn import GNN
 from src.models import AggregatedModel
 from src.models import LinearModel
 from src.training.pyg import pyg_train, pyg_eval, pyg_test
+from src.training.dgl_training import dgl_eval
 from src.training.trainer import trainer
 
 app = typer.Typer()
@@ -48,7 +48,12 @@ MODELS = {
     "gin-virtual": get_gin_virtual_model,
 }
 DATASETS = {
-    "diffpool": {"name": "dgl", "cls": DglPCQM4MDataset},
+    "diffpool": {
+        "name": "dgl",
+        "cls": DglPCQM4MDataset,
+        "eval_fn": dgl_eval,
+        "loader_fn": get_dgl_data_loaders,
+    },
     "gin-virtual": {
         "name": "pyg",
         "cls": PygPCQM4MDataset,
@@ -81,6 +86,7 @@ def get_models(
             evaluator=PCQM4MEvaluator(),
             eval_fn=DATASETS[model_type]["eval_fn"],
             device=device,
+            freeze=model_cfg[model_name]["freeze"]
         )
 
         models[model_name] = model

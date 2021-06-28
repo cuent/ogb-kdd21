@@ -56,11 +56,10 @@ def load_model(
     evaluator,
     eval_fn,
     device,
+    freeze: bool = False,
 ):
     # init bn
-    model(
-        move_to(next(iter(test_dataloader)), device)
-    )
+    model(move_to(next(iter(test_dataloader)), device))
 
     state_dict = torch.load(checkpoint_path)["model_state_dict"]
     model.load_state_dict(state_dict)
@@ -76,4 +75,9 @@ def load_model(
     )
 
     model.graph_pred_linear = Identity()
+
+    if freeze:
+        for param in model.parameters():
+            param.requires_grad = False
+
     return model

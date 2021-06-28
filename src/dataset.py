@@ -39,7 +39,7 @@ def load_dataset_with_validloader(
         smiles2graph=smiles2graph_fn,
     )
     _, valid_loader, _ = dataloadern_fn(
-        dataset=ds, split_idx=split_dict, batch_size=256, num_workers=1
+        dataset=ds, split_idx=split_dict, batch_size=256, num_workers=-1
     )
     return ds, valid_loader
 
@@ -103,7 +103,7 @@ def get_tg_data_loaders(
     dataset: Any,
     split_idx: Dict[str, torch.tensor],
     batch_size: int,
-    num_workers: int,
+    num_workers: Optional[int] = None,
 ):
     loader_kws = dict(
         batch_size=batch_size,

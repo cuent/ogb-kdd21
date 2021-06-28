@@ -1,26 +1,51 @@
 models:
-  - gin-virtual-1:
-      model: gin-virtual
+#  - gin-virtual-1:
+#      model: gin-virtual
+#      cfg: experiments/configs/gin-virtual.yaml
+#      pretrained_path: data/pretrained/models/gin-virtual-run1/checkpoint/checkpoint.pt
+#      freeze: True
+#
+#  - gin-virtual-2:
+#      model: gin-virtual
+#      cfg: experiments/configs/gin-virtual.yaml
+#      pretrained_path: data/pretrained/models/gin-virtual-run2/checkpoint/checkpoint.pt
+#      freeze: True
+#
+#  - gin-virtual-3:
+#      model: gin-virtual
+#      cfg: experiments/configs/gin-virtual.yaml
+#      pretrained_path: data/pretrained/models/gin-virtual-run3/checkpoint/checkpoint.pt
+#      freeze: True
+#
+#  - diffpool-2:
+#      model: diffpool
+#      cfg: experiments/configs/diffpool.yaml
+#      pretrained_path: data/pretrained/models/gin-virtual-diffpool-run2/checkpoint/checkpoint.pt
+#      freeze: True
+
+#
+#  - diffpool-3:
+#      model: diffpool
+#      cfg: experiments/configs/diffpool.yaml
+#      pretrained_path: data/pretrained/models/gin-virtual-diffpool-run3/checkpoint/checkpoint.pt
+#      freeze: True
+
+  - gin-virtual-bnn-1:
+      model: gin-virtual-bnn
       cfg: experiments/configs/gin-virtual.yaml
-      pretrained_path: data/pretrained/models/gin-virtual-run1/checkpoint/checkpoint.pt
+      pretrained_path: data/pretrained/models/gin-virtual-bnn-lastLayer-run1/checkpoint/checkpoint.pt
       freeze: True
 
-  - gin-virtual-2:
-      model: gin-virtual
+  - gin-virtual-bnn-2:
+      model: gin-virtual-bnn
       cfg: experiments/configs/gin-virtual.yaml
-      pretrained_path: data/pretrained/models/gin-virtual-run2/checkpoint/checkpoint.pt
+      pretrained_path: data/pretrained/models/gin-virtual-bnn-lastLayer-run2/checkpoint/checkpoint.pt
       freeze: True
 
-  - gin-virtual-3:
-      model: gin-virtual
+  - gin-virtual-bnn-3:
+      model: gin-virtual-bnn
       cfg: experiments/configs/gin-virtual.yaml
-      pretrained_path: data/pretrained/models/gin-virtual-run3/checkpoint/checkpoint.pt
-      freeze: True
-
-  - diffpool-1:
-      model: diffpool
-      cfg: experiments/configs/diffpool.yaml
-      pretrained_path: data/pretrained/models/gin-virtual-diffpool-run1/checkpoint/checkpoint.pt
+      pretrained_path: data/pretrained/models/gin-virtual-bnn-lastLayer-run3/checkpoint/checkpoint.pt
       freeze: True
 
 

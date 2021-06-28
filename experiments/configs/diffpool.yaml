@@ -2,7 +2,7 @@ args:
   graph_pooling: sum
   drop_ratio: 0
   num_layers: 5
-  emb_dim: 150
+  emb_dim: 600
 
 learning_args:
   epochs: 1

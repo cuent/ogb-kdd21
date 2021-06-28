@@ -56,10 +56,21 @@ def load_model(
     evaluator,
     eval_fn,
     device,
+    name: str,
     freeze: bool = False,
 ):
     # init bn
-    model(move_to(next(iter(test_dataloader)), device))
+
+    if name != "dgl":
+        batch = move_to(next(iter(test_dataloader)), device)
+        model(batch)
+
+    else:
+        batch = next(iter(test_dataloader))[0]
+        bg = batch.to(device)
+        x = bg.ndata.pop("feat").to(device)
+        edge_attr = bg.edata.pop("feat").to(device)
+        model(bg, x, edge_attr)
 
     state_dict = torch.load(checkpoint_path)["model_state_dict"]
     model.load_state_dict(state_dict)

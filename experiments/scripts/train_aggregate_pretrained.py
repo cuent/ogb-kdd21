@@ -86,7 +86,8 @@ def get_models(
             evaluator=PCQM4MEvaluator(),
             eval_fn=DATASETS[model_type]["eval_fn"],
             device=device,
-            freeze=model_cfg[model_name]["freeze"]
+            freeze=model_cfg[model_name]["freeze"],
+            name=DATASETS[model_type]["name"]
         )
 
         models[model_name] = model

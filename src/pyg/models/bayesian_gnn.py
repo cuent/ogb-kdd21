@@ -33,7 +33,7 @@ class BayesianGNN(GNN):
         )
 
         ### GNN to generate node embeddings
-        if virtual_node & (not last_layer_only):
+        if virtual_node and not last_layer_only:
             self.gnn_node = Bayesian_GNN_node_Virtualnode(
                 num_layers,
                 emb_dim,
@@ -43,7 +43,7 @@ class BayesianGNN(GNN):
                 gnn_type=gnn_type,
             )
         # only last layer is replaced with Bayesian neural network
-        elif virtual_node & last_layer_only:
+        elif virtual_node and last_layer_only:
             self.gnn_node = GNN_node_Virtualnode(
                 num_layers,
                 emb_dim,

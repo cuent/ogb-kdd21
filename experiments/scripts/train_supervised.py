@@ -44,13 +44,16 @@ def get_model(
         model = GNN(gnn_type="gcn", virtual_node=True, **model_args)
     elif model == "gin-virtual-bnn":
         model = BayesianGNN(gnn_type="gin", virtual_node=True, **model_args)
-    elif model == "diffpool":
+    elif model == "gin-virtual-diffpool":
         model = DiffPoolGNN(gnn_type="gin", virtual_node=True, **model_args)
     else:
         raise ValueError("Invalid GNN type")
 
     model = model.to(device)
     return model
+
+def uses_dgl_dataset(gnn_name: str) -> bool:
+    return "diffpool" in gnn_name
 
 
 def setup_seed() -> None:
@@ -94,7 +97,9 @@ def main(
     # automatic evaluator. takes dataset name as input
     evaluator = PCQM4MEvaluator()
 
-    if model_name != "diffpool":
+    use_dgl = uses_dgl_dataset(gnn_name=model_name)
+
+    if not use_dgl:
         train_loader, valid_loader, test_loader = get_data_loaders(
             dataset=dataset,
             split_idx=split_idx,
@@ -133,9 +138,9 @@ def main(
     metrics = trainer(
         model=model,
         model_name=model_name,
-        train_fn=pyg_train if model_name != "diffpool" else dgl_train,
-        eval_fn=pyg_eval if model_name != "diffpool" else dgl_eval,
-        test_fn=pyg_test if model_name != "diffpool" else dgl_test,
+        train_fn=pyg_train if not use_dgl else dgl_train,
+        eval_fn=pyg_eval if not use_dgl else dgl_eval,
+        test_fn=pyg_test if not use_dgl else dgl_test,
         evaluator=evaluator,
         train_loader=train_loader,
         test_loader=test_loader,

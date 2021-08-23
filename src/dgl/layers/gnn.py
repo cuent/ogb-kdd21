@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from dgl.nn.pytorch import SumPooling
-from src.mol_encoder import AtomEncoder, BondEncoder
+from ogb.graphproppred.mol_encoder import AtomEncoder, BondEncoder
 
 ### GIN convolution along the graph structure
 class GINConv(nn.Module):

@@ -2,6 +2,7 @@ import torch
 import torchbnn as bnn
 
 from src.pyg.layers.bayesian_gnn import Bayesian_GNN_node_Virtualnode
+from src.pyg.layers.gnn import GNN_node_Virtualnode
 from src.pyg.models.gnn import GNN
 
 
@@ -17,6 +18,7 @@ class BayesianGNN(GNN):
         drop_ratio=0,
         JK="last",
         graph_pooling="sum",
+        last_layer_only=True,
     ):
         super(BayesianGNN, self).__init__(
             num_tasks,
@@ -31,8 +33,18 @@ class BayesianGNN(GNN):
         )
 
         ### GNN to generate node embeddings
-        if virtual_node:
+        if virtual_node and not last_layer_only:
             self.gnn_node = Bayesian_GNN_node_Virtualnode(
+                num_layers,
+                emb_dim,
+                JK=JK,
+                drop_ratio=drop_ratio,
+                residual=residual,
+                gnn_type=gnn_type,
+            )
+        # only last layer is replaced with Bayesian neural network
+        elif virtual_node and last_layer_only:
+            self.gnn_node = GNN_node_Virtualnode(
                 num_layers,
                 emb_dim,
                 JK=JK,
@@ -62,17 +74,11 @@ class BayesianGNN(GNN):
             ),
             torch.nn.ReLU(),
             bnn.BayesLinear(
-                prior_mu=0,
-                prior_sigma=0.1,
-                in_features=100,
-                out_features=100,
+                prior_mu=0, prior_sigma=0.1, in_features=100, out_features=100
             ),
             torch.nn.ReLU(),
             bnn.BayesLinear(
-                prior_mu=0,
-                prior_sigma=0.1,
-                in_features=100,
-                out_features=100,
+                prior_mu=0, prior_sigma=0.1, in_features=100, out_features=100
             ),
             torch.nn.ReLU(),
             bnn.BayesLinear(

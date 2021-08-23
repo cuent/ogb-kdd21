@@ -59,10 +59,9 @@ def smiles2graph_enchanced(smiles_string):
     # atoms
     atom_features_list = []
     for atom in mol.GetAtoms():
-        atom_features_list.append([
-            *atom_to_feature_vector(atom),
-            *atom_to_new_feature_vector(atom)
-        ])
+        atom_features_list.append(
+            [*atom_to_feature_vector(atom), *atom_to_new_feature_vector(atom)]
+        )
     x = np.array(atom_features_list, dtype=np.int64)
 
     # bonds

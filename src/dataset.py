@@ -7,7 +7,7 @@ from typing import Dict, Union
 import numpy as np
 import pandas as pd
 import torch
-from ogb.lsc import PygPCQM4MDataset, DglPCQM4MDataset
+from ogb.lsc import PygPCQM4MDataset
 from sklearn.preprocessing import StandardScaler
 from torch_geometric.data import DataLoader
 from torch_geometric.data.dataloader import Collater

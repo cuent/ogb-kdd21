@@ -12,6 +12,7 @@ import yaml
 from ogb.lsc import PCQM4MEvaluator
 from torch.optim.lr_scheduler import StepLR
 from torch.utils.tensorboard import SummaryWriter
+from tqdm import trange
 
 import src.utils
 from src.dataset import (
@@ -123,43 +124,63 @@ def main(
     if checkpoint_dir != "":
         os.makedirs(checkpoint_dir, exist_ok=True)
 
-    model = get_model(model_name, model_args=cfg["args"], device=device)
+    if metrics_path != "":
+        Path(metrics_path).mkdir(exist_ok=True, parents=True)
 
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
-    scheduler = StepLR(optimizer, **cfg["step_lr"])
+    all_retrains_metrics = {}
 
-    writer = None
-    if log_dir != "":
-        writer = SummaryWriter(log_dir=log_dir)
+    for retrain_idx in trange(cfg["num_retrains"], desc="Retrains"):
+        model = get_model(model_name, model_args=cfg["args"], device=device)
 
-    epochs = cfg["learning_args"]["epochs"]
-    reg = src.utils.get_module_from_str(cfg["reg"])()
+        optimizer = optim.Adam(model.parameters(), lr=0.001)
+        scheduler = StepLR(optimizer, **cfg["step_lr"])
 
-    metrics = trainer(
-        model=model,
-        model_name=model_name,
-        train_fn=pyg_train if not use_dgl else dgl_train,
-        eval_fn=pyg_eval if not use_dgl else dgl_eval,
-        test_fn=pyg_test if not use_dgl else dgl_test,
-        evaluator=evaluator,
-        train_loader=train_loader,
-        test_loader=test_loader,
-        valid_loader=valid_loader,
-        epochs=epochs,
-        optimizer=optimizer,
-        scheduler=scheduler,
-        reg=reg,
-        device=device,
-        writer=writer,
-        checkpoint_dir=checkpoint_dir,
-        save_test_dir=save_test_dir,
-    )
+        writer = None
+        if log_dir != "":
+            writer = SummaryWriter(
+                    log_dir=os.path.join(log_dir, str(retrain_idx))
+            )
+
+        epochs = cfg["learning_args"]["epochs"]
+        reg = src.utils.get_module_from_str(cfg["reg"])()
+
+        chkt_dir = Path(checkpoint_dir).joinpath(str(retrain_idx))
+        chkt_dir.mkdir(exist_ok=True, parents=True)
+
+        st_dir = Path(save_test_dir).joinpath(str(retrain_idx))
+        st_dir.mkdir(exist_ok=True, parents=True)
+
+        metrics = trainer(
+            model=model,
+            model_name=model_name,
+            train_fn=pyg_train if not use_dgl else dgl_train,
+            eval_fn=pyg_eval if not use_dgl else dgl_eval,
+            test_fn=pyg_test if not use_dgl else dgl_test,
+            evaluator=evaluator,
+            train_loader=train_loader,
+            test_loader=test_loader,
+            valid_loader=valid_loader,
+            epochs=epochs,
+            optimizer=optimizer,
+            scheduler=scheduler,
+            reg=reg,
+            device=device,
+            writer=writer,
+            checkpoint_dir=chkt_dir,
+            save_test_dir=st_dir,
+        )
+
+        all_retrains_metrics[retrain_idx] = metrics
+
+        if metrics_path != "":
+            mp = Path(metrics_path).joinpath(f"{retrain_idx}.json")
+            with open(mp, "w+") as f:
+                json.dump(obj=metrics, fp=f, indent=4)
 
     if metrics_path != "":
-        path = Path(metrics_path)
-        path.parent.mkdir(exist_ok=True, parents=True)
-        with open(path, "w+") as f:
-            json.dump(obj=metrics, fp=f)
+        mp = Path(metrics_path).joinpath("all.json")
+        with open(mp, "w+") as f:
+            json.dump(obj=all_retrains_metrics, fp=f, indent=4)
 
 
 if __name__ == "__main__":

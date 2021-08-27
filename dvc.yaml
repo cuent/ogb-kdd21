@@ -16,7 +16,7 @@ stages:
       - gin-virtual-diffpool
     do:
       wdir: .
-      cmd: PYTHONPATH=. python3 experiments/scripts/train_supervised.py --model-name ${item} --config-path experiments/configs/${item}.yaml --checkpoint-dir data/supervised/${item}/checkpoints --save-test-dir data/supervised/${item}/submssion --metrics-path data/metrics/supervised/${item}.json --log-dir data/supervised/${item}/logs
+      cmd: PYTHONPATH=. python3 experiments/scripts/train_supervised.py --model-name ${item} --config-path experiments/configs/${item}.yaml --checkpoint-dir data/supervised/${item}/checkpoints --save-test-dir data/supervised/${item}/submssion --metrics-path data/metrics/supervised/${item}/ --log-dir data/supervised/${item}/logs
       params:
         - experiments/configs/${item}.yaml:
             - args
@@ -28,7 +28,7 @@ stages:
       deps:
         - data/dataset/pcqm4m_kddcup2021/processed/
       metrics:
-        - data/metrics/supervised/${item}.json:
+        - data/metrics/supervised/${item}/all.json:
             cache: false
       outs:
         - data/supervised/${item}/

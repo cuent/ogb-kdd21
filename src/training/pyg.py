@@ -1,6 +1,6 @@
 import torch
 import torch_geometric
-from tqdm.auto import tqdm
+from tqdm import tqdm
 
 from src.utils import move_to
 

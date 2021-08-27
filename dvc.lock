@@ -76,3 +76,37 @@ stages:
     - path: data/dataset/pcqm4m_kddcup2021/processed/dgl_data_processed
       md5: bb048e32b9e0e2685c66111af087662c
       size: 11577611202
+  train_supervised@gin-virtual:
+    cmd: PYTHONPATH=. python3 experiments/scripts/train_supervised.py --model-name
+      gin-virtual --config-path experiments/configs/gin-virtual.yaml --checkpoint-dir
+      data/supervised/gin-virtual/checkpoints --save-test-dir data/supervised/gin-virtual/submssion
+      --metrics-path data/metrics/supervised/gin-virtual/ --log-dir data/supervised/gin-virtual/logs
+    deps:
+    - path: data/dataset/pcqm4m_kddcup2021/processed/
+      md5: e814a1e139a7b201e836ddc3575b32ef.dir
+      size: 20348281406
+      nfiles: 3
+    params:
+      experiments/configs/gin-virtual.yaml:
+        args:
+          graph_pooling: sum
+          drop_ratio: 0
+          num_layers: 5
+          emb_dim: 600
+        data_loader_args:
+          batch_size: 1024
+        dataset: ogb.lsc.PygPCQM4MDataset
+        learning_args:
+          epochs: 30
+        reg: torch.nn.L1Loss
+        step_lr:
+          step_size: 300
+          gamma: 0.25
+    outs:
+    - path: data/metrics/supervised/gin-virtual/all.json
+      md5: 4e5ad992eddbcd86ff72a5897b7ae164
+      size: 1465
+    - path: data/supervised/gin-virtual/
+      md5: 576852bdcff51916122230d0682061eb.dir
+      size: 244131988
+      nfiles: 9

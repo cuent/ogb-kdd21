@@ -1,5 +1,5 @@
 import torch
-from tqdm.auto import tqdm
+from tqdm import tqdm
 
 
 def dgl_train(model, device, loader, optimizer, gnn_name, loss_fn):

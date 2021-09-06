@@ -85,7 +85,7 @@ def main(
                 dataloadern_fn=DATASETS[model_type]["loader_fn"],
             )
 
-    models = get_models(
+    models, _ = get_models(
         cfg,
         valid_dataloaders,
         device=device,

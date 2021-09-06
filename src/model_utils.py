@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
 
 import torch
 import yaml
@@ -80,9 +80,9 @@ def get_models(
     datasets: Dict[str, Any],
     models_cls: Dict[str, Any],
     ignore_pred_layer: bool = False,
-) -> torch.nn.ModuleDict:
+) -> Tuple[torch.nn.ModuleDict, Dict[str, str]]:
     models = torch.nn.ModuleDict()
-    print(valid_loaders)
+    models_type_mapping: Dict[str, str] = {}
     for model_cfg in cfg["models"]:
         model_name = list(model_cfg.keys())[0]
         model_type = model_cfg[model_name]["model"]
@@ -106,4 +106,5 @@ def get_models(
         )
 
         models[model_name] = model
-    return models
+        models_type_mapping[model_name] = model_type
+    return models, models_type_mapping

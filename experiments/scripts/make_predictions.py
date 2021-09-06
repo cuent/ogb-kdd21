@@ -73,7 +73,7 @@ def main(
                 shuffle_valid=False,
             )
 
-    models = get_models(
+    models, model_types_mapping = get_models(
         cfg,
         valid_dataloaders,
         device=device,
@@ -83,7 +83,7 @@ def main(
     )
     predictions = {}
     for model_name, model in models.items():
-        model_type = cfg["models"][model_name]["model"]
+        model_type = model_types_mapping[model_name]
         model_ds = DATASETS[model_type]["name"]
 
         y_tr_pred, y_tr_true = DATASETS[model_type]["test_fn"](

@@ -1,11 +1,12 @@
-import dgl
-import dgl.function as fn
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
-from dgl.nn.pytorch import SumPooling
 from ogb.graphproppred.mol_encoder import AtomEncoder, BondEncoder
+
+import dgl
+import dgl.function as fn
+from dgl.nn.pytorch import SumPooling
+
 
 ### GIN convolution along the graph structure
 class GINConv(nn.Module):

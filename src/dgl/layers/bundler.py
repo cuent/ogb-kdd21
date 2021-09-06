@@ -1,6 +1,6 @@
 import torch
-from torch import nn as nn
 import torch.nn.functional as F
+from torch import nn as nn
 
 
 class Bundler(nn.Module):

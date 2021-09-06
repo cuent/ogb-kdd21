@@ -1,0 +1,36 @@
+models:
+  - gin-virtual-1:
+      model: gin-virtual
+      cfg: experiments/configs/gin-virtual.yaml
+      pretrained_path: data/supervised/gin-virtual/checkpoints/0/checkpoint.pt
+      freeze: True
+
+  - gin-virtual-2:
+      model: gin-virtual
+      cfg: experiments/configs/gin-virtual.yaml
+      pretrained_path: data/supervised/gin-virtual/checkpoints/1/checkpoint.pt
+      freeze: True
+
+  - gin-virtual-3:
+      model: gin-virtual
+      cfg: experiments/configs/gin-virtual.yaml
+      pretrained_path: data/supervised/gin-virtual/checkpoints/2/checkpoint.pt
+      freeze: True
+
+  - diffpool-1:
+      model: diffpool
+      cfg: experiments/configs/diffpool.yaml
+      pretrained_path: data/supervised/gin-virtual-diffpool/checkpoints/0/checkpoint.pt
+      freeze: True
+
+  - diffpool-2:
+      model: diffpool
+      cfg: experiments/configs/diffpool.yaml
+      pretrained_path: data/supervised/gin-virtual-diffpool/checkpoints/1/checkpoint.pt
+      freeze: True
+
+  - diffpool-3:
+      model: diffpool
+      cfg: experiments/configs/diffpool.yaml
+      pretrained_path: data/supervised/gin-virtual-diffpool/checkpoints/2/checkpoint.pt
+      freeze: True

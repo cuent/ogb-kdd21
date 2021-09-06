@@ -1,9 +1,8 @@
 import torch
 import torch.nn.functional as F
 import torch_geometric
-from torch_geometric.nn import global_add_pool
 from ogb.graphproppred.mol_encoder import AtomEncoder
-
+from torch_geometric.nn import global_add_pool
 
 from src.pyg.layers.gcn import GCNConv
 from src.pyg.layers.gin import GINConv

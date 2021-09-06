@@ -1,10 +1,9 @@
 import typer
 import yaml
+from ogb.lsc import DglPCQM4MDataset, PygPCQM4MDataset
 
-from src.dataset import load_dataset
+from src.dataset import LinearPCQM4MDataset, load_dataset
 from src.utils import get_module_from_str
-from ogb.lsc import PygPCQM4MDataset, DglPCQM4MDataset
-from src.dataset import LinearPCQM4MDataset
 
 app = typer.Typer()
 

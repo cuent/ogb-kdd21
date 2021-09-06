@@ -2,13 +2,12 @@ import torch
 import torch.nn as nn
 
 from dgl.nn.pytorch import (
-    SumPooling,
     AvgPooling,
-    MaxPooling,
     GlobalAttentionPooling,
+    MaxPooling,
     Set2Set,
+    SumPooling,
 )
-
 from src.dgl.layers.gnn import GNN_node, GNN_node_Virtualnode
 
 

@@ -1,14 +1,14 @@
 import torch
 from torch import nn as nn
 from torch.nn import functional as F
-import dgl.function as fn
 
-from src.dgl.layers.bundler import Bundler
+import dgl.function as fn
 from src.dgl.layers.aggregator import (
-    MaxPoolAggregator,
     LSTMAggregator,
+    MaxPoolAggregator,
     MeanAggregator,
 )
+from src.dgl.layers.bundler import Bundler
 
 
 class BatchedGraphSAGE(nn.Module):

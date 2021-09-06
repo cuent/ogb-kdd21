@@ -32,3 +32,12 @@ stages:
             cache: false
       outs:
         - data/supervised/${item}/
+
+
+  make_predictions:
+    cmd: PYTHONPATH=. python3 experiments/scripts/make_predictions.py --config-path experiments/configs/make_predictions.yaml
+    deps:
+      - experiments/configs/make_predictions.yaml
+      - experiments/scripts/make_predictions.py
+    outs:
+      - data/predictions/predictions.pkl

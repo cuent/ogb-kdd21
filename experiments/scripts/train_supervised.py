@@ -16,17 +16,17 @@ from tqdm import trange
 
 import src.utils
 from src.dataset import (
-    load_dataset,
+    collate_dgl,
     get_data_loaders,
     get_torch_dataloaders,
-    collate_dgl,
+    load_dataset,
 )
+from src.dgl.models.diffpool import DiffPoolGNN
 from src.pyg.models.bayesian_gnn import BayesianGNN
 from src.pyg.models.gnn import GNN
-from src.dgl.models.diffpool import DiffPoolGNN
-from src.training.pyg import pyg_train, pyg_eval, pyg_test
-from src.training.dgl_training import dgl_train, dgl_eval, dgl_test
 from src.smiles import Smiles2GraphOGBConverter
+from src.training.dgl_training import dgl_eval, dgl_test, dgl_train
+from src.training.pyg import pyg_eval, pyg_test, pyg_train
 from src.training.trainer import trainer
 
 app = typer.Typer()
@@ -52,6 +52,7 @@ def get_model(
 
     model = model.to(device)
     return model
+
 
 def uses_dgl_dataset(gnn_name: str) -> bool:
     return "diffpool" in gnn_name
@@ -105,7 +106,6 @@ def main(
             dataset=dataset,
             split_idx=split_idx,
             num_workers=num_workers,
-            save_test_dir=save_test_dir,
             train_subset=pyg_train_subset,
             **cfg["data_loader_args"],
         )
@@ -138,7 +138,7 @@ def main(
         writer = None
         if log_dir != "":
             writer = SummaryWriter(
-                    log_dir=os.path.join(log_dir, str(retrain_idx))
+                log_dir=os.path.join(log_dir, str(retrain_idx))
             )
 
         epochs = cfg["learning_args"]["epochs"]

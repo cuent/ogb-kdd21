@@ -1,7 +1,7 @@
 import torch
-from torch_geometric.nn import MessagePassing
 import torch.nn.functional as F
 from ogb.graphproppred.mol_encoder import BondEncoder
+from torch_geometric.nn import MessagePassing
 from torch_geometric.utils import degree
 
 

@@ -1,128 +1,32 @@
-import gzip
 import json
 import os
 import random
 from pathlib import Path
-from typing import Dict, Any
 
 import numpy as np
-import pandas as pd
 import torch
 import torch.optim as optim
 import typer
 import yaml
-from ogb.lsc import PygPCQM4MDataset, DglPCQM4MDataset
 from ogb.lsc import PCQM4MEvaluator
 from torch.optim.lr_scheduler import StepLR
 from torch.utils.tensorboard import SummaryWriter
 
-import src.utils
+import src.utilsf
 from src.dataset import (
-    get_torch_dataloaders,
-    get_tg_data_loaders,
-    get_dgl_data_loaders,
-    LinearPCQM4MDataset,
-    DatasetAggregator,
     AggregateCollater,
+    DatasetAggregator,
+    get_torch_dataloaders,
+    get_y,
     load_dataset_with_validloader,
 )
-from src.dgl.models.diffpool import DiffPoolGNN
-from src.pyg.models.bayesian_gnn import BayesianGNN
-from src.pyg.models.gnn import GNN
+from src.defaults import DATASETS
+from src.model_utils import get_models
 from src.models import AggregatedModel
-from src.models import LinearModel
-from src.training.pyg import pyg_train, pyg_eval, pyg_test
-from src.training.dgl_training import dgl_eval
+from src.training.pyg import pyg_eval, pyg_test, pyg_train
 from src.training.trainer import trainer
 
 app = typer.Typer()
-
-
-def get_gin_virtual_model(model_args):
-    model = GNN(gnn_type="gin", virtual_node=True, **model_args)
-    return model
-
-
-def get_gin_virtual_bnn_model(model_args):
-    model = BayesianGNN(
-        gnn_type="gin", virtual_node=True, last_layer_only=True, **model_args
-    )
-    return model
-
-
-def get_diffpool_model(model_args):
-    model = DiffPoolGNN(**model_args)
-    return model
-
-
-MODELS = {
-    "diffpool": get_diffpool_model,
-    "linear": LinearModel,
-    "gin-virtual": get_gin_virtual_model,
-    "gin-virtual-bnn": get_gin_virtual_bnn_model,
-}
-DATASETS = {
-    "diffpool": {
-        "name": "dgl",
-        "cls": DglPCQM4MDataset,
-        "eval_fn": dgl_eval,
-        "loader_fn": get_dgl_data_loaders,
-    },
-    "gin-virtual": {
-        "name": "pyg",
-        "cls": PygPCQM4MDataset,
-        "eval_fn": pyg_eval,
-        "loader_fn": get_tg_data_loaders,
-    },
-    "gin-virtual-bnn": {
-        "name": "pyg",
-        "cls": PygPCQM4MDataset,
-        "eval_fn": pyg_eval,
-        "loader_fn": get_tg_data_loaders,
-    },
-    "linear": {"name": "linear", "cls": LinearPCQM4MDataset},
-}
-
-
-def get_models(
-    cfg: Any, valid_loaders, device: torch.device
-) -> torch.nn.ModuleDict:
-    models = torch.nn.ModuleDict()
-    print(valid_loaders)
-    for model_cfg in cfg["models"]:
-        model_name = list(model_cfg.keys())[0]
-        model_type = model_cfg[model_name]["model"]
-        cfg_path = model_cfg[model_name]["cfg"]
-        ds_name = DATASETS[model_type]["name"]
-
-        with open(cfg_path, "r") as f:
-            model_args = yaml.safe_load(f)["args"]
-
-        model = MODELS[model_type](model_args).to(device)
-        src.utils.load_model(
-            model,
-            model_cfg[model_name]["pretrained_path"],
-            test_dataloader=valid_loaders[ds_name],
-            evaluator=PCQM4MEvaluator(),
-            eval_fn=DATASETS[model_type]["eval_fn"],
-            device=device,
-            freeze=model_cfg[model_name]["freeze"],
-            name=DATASETS[model_type]["name"],
-        )
-
-        models[model_name] = model
-    return models
-
-
-def get_y(
-    raw_data_path: str = "data/dataset/pcqm4m_kddcup2021/raw/data.csv.gz",
-):
-    with gzip.open(raw_data_path, "rb") as f:
-        raw_data = pd.read_csv(f)
-
-    hg = raw_data["homolumogap"].values
-    hg = torch.from_numpy(hg)
-    return hg
 
 
 def setup_seed() -> None:
@@ -182,7 +86,9 @@ def main(
                 dataloadern_fn=DATASETS[model_type]["loader_fn"],
             )
 
-    models = get_models(cfg, valid_dataloaders, device=device)
+    models = get_models(
+        cfg, valid_dataloaders, device=device, ignore_pred_layer=True
+    )
 
     datasets["y"] = get_y()
     aggregator = DatasetAggregator(datasets)

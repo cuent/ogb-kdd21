@@ -42,16 +42,19 @@ def dgl_eval(model, device, loader, evaluator, loss_fn):
 
     return {
         "loss": loss_acc / (step + 1),
-        "mae": evaluator.eval({
-            "y_true": torch.cat(y_true, dim=0),
-            "y_pred": torch.cat(y_pred, dim=0),
-        })["mae"],
+        "mae": evaluator.eval(
+            {
+                "y_true": torch.cat(y_true, dim=0),
+                "y_pred": torch.cat(y_pred, dim=0),
+            }
+        )["mae"],
     }
 
 
 def dgl_test(model, device, loader):
     model.eval()
     y_pred = []
+    y_true = []
 
     for step, (bg, labels) in enumerate(tqdm(loader, desc="Iteration")):
         bg = bg.to(device)
@@ -64,7 +67,9 @@ def dgl_test(model, device, loader):
             )
 
         y_pred.append(pred.detach().cpu())
+        y_true.append(labels.view(pred.shape).detach().cpu())
 
     y_pred = torch.cat(y_pred, dim=0)
+    y_true = torch.cat(y_true, dim=0)
 
-    return y_pred
+    return y_pred, y_true

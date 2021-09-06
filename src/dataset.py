@@ -1,8 +1,7 @@
 import gzip
 import os
 from pathlib import Path
-from typing import Callable, Optional, Any
-from typing import Dict, Union
+from typing import Any, Callable, Dict, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -58,25 +57,28 @@ def get_torch_dataloaders(
     batch_size: int,
     num_workers: int,
     collate_fn: Callable,
+    shuffle_train: bool = True,
+    shuffle_test: bool = False,
+    shuffle_valid: bool = False,
 ):
     train_loader = torch.utils.data.DataLoader(
         dataset[split_idx["train"]],
         batch_size=batch_size,
-        shuffle=True,
+        shuffle=shuffle_train,
         num_workers=num_workers,
         collate_fn=collate_fn,
     )
     valid_loader = torch.utils.data.DataLoader(
         dataset[split_idx["valid"]],
         batch_size=batch_size,
-        shuffle=False,
+        shuffle=shuffle_valid,
         num_workers=num_workers,
         collate_fn=collate_fn,
     )
     test_loader = torch.utils.data.DataLoader(
         dataset[split_idx["test"]],
         batch_size=batch_size,
-        shuffle=False,
+        shuffle=shuffle_test,
         num_workers=num_workers,
         collate_fn=collate_fn,
     )
@@ -89,6 +91,9 @@ def get_dgl_data_loaders(
     split_idx: Dict[str, torch.tensor],
     batch_size: int,
     num_workers: int,
+    shuffle_train: bool = True,
+    shuffle_test: bool = False,
+    shuffle_valid: bool = False,
 ):
     return get_torch_dataloaders(
         dataset=dataset,
@@ -96,6 +101,9 @@ def get_dgl_data_loaders(
         batch_size=batch_size,
         num_workers=num_workers,
         collate_fn=collate_dgl,
+        shuffle_train=shuffle_train,
+        shuffle_test=shuffle_test,
+        shuffle_valid=shuffle_valid,
     )
 
 
@@ -104,6 +112,9 @@ def get_tg_data_loaders(
     split_idx: Dict[str, torch.tensor],
     batch_size: int,
     num_workers: Optional[int] = None,
+    shuffle_train: bool = True,
+    shuffle_test: bool = False,
+    shuffle_valid: bool = False,
 ):
     loader_kws = dict(
         batch_size=batch_size,
@@ -112,17 +123,17 @@ def get_tg_data_loaders(
 
     train_loader = DataLoader(
         dataset=dataset[split_idx["train"]],
-        shuffle=True,
+        shuffle=shuffle_train,
         **loader_kws,
     )
     valid_loader = DataLoader(
         dataset=dataset[split_idx["valid"]],
-        shuffle=False,
+        shuffle=shuffle_valid,
         **loader_kws,
     )
     test_loader = DataLoader(
         dataset=dataset[split_idx["test"]],
-        shuffle=False,
+        shuffle=shuffle_test,
         **loader_kws,
     )
 
@@ -134,8 +145,10 @@ def get_data_loaders(
     split_idx: dict,
     batch_size: int,
     num_workers: int,
-    save_test_dir: str,
     train_subset: bool = False,
+    shuffle_train: bool = True,
+    shuffle_test: bool = False,
+    shuffle_valid: bool = False,
 ):
     loader_kws = dict(
         batch_size=batch_size,
@@ -153,23 +166,19 @@ def get_data_loaders(
 
     train_loader = DataLoader(
         dataset=dataset[train_idx],
-        shuffle=True,
+        shuffle=shuffle_train,
         **loader_kws,
     )
     valid_loader = DataLoader(
         dataset=dataset[split_idx["valid"]],
-        shuffle=False,
+        shuffle=shuffle_valid,
         **loader_kws,
     )
-
-    if save_test_dir != "":
-        test_loader = DataLoader(
-            dataset=dataset[split_idx["test"]],
-            shuffle=False,
-            **loader_kws,
-        )
-    else:
-        test_loader = None
+    test_loader = DataLoader(
+        dataset=dataset[split_idx["test"]],
+        shuffle=shuffle_test,
+        **loader_kws,
+    )
 
     return train_loader, valid_loader, test_loader
 
@@ -323,3 +332,14 @@ class AggregateCollater:
     @staticmethod
     def collate_torch_agg(samples):
         return torch.stack(samples)
+
+
+def get_y(
+    raw_data_path: str = "data/dataset/pcqm4m_kddcup2021/raw/data.csv.gz",
+):
+    with gzip.open(raw_data_path, "rb") as f:
+        raw_data = pd.read_csv(f)
+
+    hg = raw_data["homolumogap"].values
+    hg = torch.from_numpy(hg)
+    return hg

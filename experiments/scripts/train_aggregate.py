@@ -3,7 +3,7 @@ import json
 import os
 import random
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
 
 import numpy as np
 import pandas as pd
@@ -11,25 +11,23 @@ import torch
 import torch.optim as optim
 import typer
 import yaml
-from ogb.lsc import PygPCQM4MDataset, DglPCQM4MDataset
-from ogb.lsc import PCQM4MEvaluator
+from ogb.lsc import DglPCQM4MDataset, PCQM4MEvaluator, PygPCQM4MDataset
 from torch.nn import Identity
 from torch.optim.lr_scheduler import StepLR
 from torch.utils.tensorboard import SummaryWriter
 
 import src.utils
 from src.dataset import (
-    load_dataset,
-    get_torch_dataloaders,
-    LinearPCQM4MDataset,
-    DatasetAggregator,
     AggregateCollater,
+    DatasetAggregator,
+    LinearPCQM4MDataset,
+    get_torch_dataloaders,
+    load_dataset,
 )
 from src.dgl.models.diffpool import DiffPoolGNN
+from src.models import AggregatedModel, LinearModel
 from src.pyg.models.gnn import GNN
-from src.models import AggregatedModel
-from src.models import LinearModel
-from src.training.pyg import pyg_train, pyg_eval, pyg_test
+from src.training.pyg import pyg_eval, pyg_test, pyg_train
 from src.training.trainer import trainer
 
 app = typer.Typer()

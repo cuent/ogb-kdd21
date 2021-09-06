@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from ogb.utils import smiles2graph
+
 from src.converters import smiles2graph_enchanced
 
 

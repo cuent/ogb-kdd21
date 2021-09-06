@@ -4,8 +4,8 @@ from typing import Callable
 import torch.nn
 from ogb.lsc import PCQM4MEvaluator
 from torch.optim.lr_scheduler import StepLR
-from torch.utils.tensorboard import SummaryWriter
 from torch.optim.optimizer import Optimizer
+from torch.utils.tensorboard import SummaryWriter
 
 
 def trainer(
@@ -81,7 +81,7 @@ def trainer(
 
             if save_test_dir != "":
                 print("Predicting on test data...")
-                y_pred = test_fn(model, device, test_loader)
+                y_pred, _ = test_fn(model, device, test_loader)
                 print("Saving test submission file...")
                 evaluator.save_test_submission(
                     {"y_pred": y_pred}, save_test_dir
@@ -96,7 +96,6 @@ def trainer(
     return {
         "train_res": train_res,
         "valid_res": valid_res,
-
         "best_valid_res": best_valid_res,
         "best_valid_res_train": best_valid_res_train,
     }

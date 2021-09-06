@@ -1,8 +1,8 @@
 import torch
 import torch.nn.functional as F
 import torchbnn as bnn
-from torch_geometric.nn import global_add_pool
 from ogb.graphproppred.mol_encoder import AtomEncoder
+from torch_geometric.nn import global_add_pool
 
 from src.pyg.layers.bayesian_gin import BayesianGINConv
 

@@ -1,11 +1,11 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from src.dgl.layers.diffpool import DiffPoolBatchedGraphLayer
 from src.dgl.layers.graphsage import BatchedGraphSAGE
 from src.dgl.models.gnn import GNN
 from src.utils import batch2tensor
-import torch.nn.functional as F
 
 
 class DiffPoolGNN(GNN):

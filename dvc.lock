@@ -145,3 +145,17 @@ stages:
       md5: 6571d8865743108981b2a69b9bd2061e.dir
       size: 283309867
       nfiles: 9
+  make_predictions:
+    cmd: PYTHONPATH=. python3 experiments/scripts/make_predictions.py --config-path
+      experiments/configs/make_predictions.yaml
+    deps:
+    - path: experiments/configs/make_predictions.yaml
+      md5: 79f9e0661b494827a360b8427eb52a0b
+      size: 1188
+    - path: experiments/scripts/make_predictions.py
+      md5: d86169bce1ac9538427a9ed66282acaf
+      size: 3254
+    outs:
+    - path: data/predictions/predictions.pkl
+      md5: ad242590687590cb0b59c8018540dec8
+      size: 182577245

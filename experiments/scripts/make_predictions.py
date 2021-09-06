@@ -8,7 +8,7 @@ import typer
 import yaml
 
 from src.dataset import load_dataset
-from src.defaults import DATASETS
+from src.defaults import DATASETS, MODELS
 from src.model_utils import get_models
 
 app = typer.Typer()
@@ -74,7 +74,12 @@ def main(
             )
 
     models = get_models(
-        cfg, valid_dataloaders, device=device, ignore_pred_layer=False
+        cfg,
+        valid_dataloaders,
+        device=device,
+        ignore_pred_layer=False,
+        datasets=DATASETS,
+        models_cls=MODELS,
     )
     predictions = {}
     for model_name, model in models.items():

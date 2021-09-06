@@ -5,8 +5,6 @@ import yaml
 from ogb.lsc import PCQM4MEvaluator
 from torch.nn import Identity
 
-import src.utils
-from src.defaults import DATASETS, MODELS
 from src.dgl.models.diffpool import DiffPoolGNN
 from src.pyg.models.bayesian_gnn import BayesianGNN
 from src.pyg.models.gnn import GNN
@@ -79,6 +77,8 @@ def get_models(
     cfg: Any,
     valid_loaders,
     device: torch.device,
+    datasets: Dict[str, Any],
+    models_cls: Dict[str, Any],
     ignore_pred_layer: bool = False,
 ) -> torch.nn.ModuleDict:
     models = torch.nn.ModuleDict()
@@ -87,65 +87,23 @@ def get_models(
         model_name = list(model_cfg.keys())[0]
         model_type = model_cfg[model_name]["model"]
         cfg_path = model_cfg[model_name]["cfg"]
-        ds_name = DATASETS[model_type]["name"]
+        ds_name = datasets[model_type]["name"]
 
         with open(cfg_path, "r") as f:
             model_args = yaml.safe_load(f)["args"]
 
-        model = MODELS[model_type](model_args).to(device)
+        model = models_cls[model_type](model_args).to(device)
         load_model(
             model,
             model_cfg[model_name]["pretrained_path"],
             test_dataloader=valid_loaders[ds_name],
             evaluator=PCQM4MEvaluator(),
-            eval_fn=DATASETS[model_type]["eval_fn"],
+            eval_fn=datasets[model_type]["eval_fn"],
             device=device,
             freeze=model_cfg[model_name]["freeze"],
-            name=DATASETS[model_type]["name"],
+            name=datasets[model_type]["name"],
             ignore_pred_layer=ignore_pred_layer,
         )
 
         models[model_name] = model
     return models
-
-
-def get_predictions(
-    cfg: Any,
-    train_dataloaders: Any,
-    test_dataloaders: Any,
-    dev_dataloaders: Any,
-    models: torch.nn.ModuleDict,
-    device: torch.device,
-) -> Dict[str, Any]:
-
-    predictions = {}
-
-    for model_cfg in cfg["models"]:
-        model_name = list(model_cfg.keys())[0]
-        model_type = model_cfg[model_name]["model"]
-        ds_name = DATASETS[model_type]["name"]
-        model = models[model_name]
-
-        train_pred = DATASETS[model_type]["test_fn"](
-            model=model,
-            loader=train_dataloaders[ds_name],
-            device=device,
-        )
-        test_pred = DATASETS[model_type]["test_fn"](
-            model=model,
-            loader=test_dataloaders[ds_name],
-            device=device,
-        )
-        dev_pred = DATASETS[model_type]["test_fn"](
-            model=model,
-            loader=dev_dataloaders[ds_name],
-            device=device,
-        )
-
-        predictions[model_name] = {
-            "train": train_pred,
-            "test": test_pred,
-            "dev": dev_pred,
-        }
-
-    return predictions

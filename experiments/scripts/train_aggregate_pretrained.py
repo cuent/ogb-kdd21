@@ -12,7 +12,6 @@ from ogb.lsc import PCQM4MEvaluator
 from torch.optim.lr_scheduler import StepLR
 from torch.utils.tensorboard import SummaryWriter
 
-import src.utilsf
 from src.dataset import (
     AggregateCollater,
     DatasetAggregator,
@@ -20,7 +19,7 @@ from src.dataset import (
     get_y,
     load_dataset_with_validloader,
 )
-from src.defaults import DATASETS
+from src.defaults import DATASETS, MODELS
 from src.model_utils import get_models
 from src.models import AggregatedModel
 from src.training.pyg import pyg_eval, pyg_test, pyg_train
@@ -87,7 +86,12 @@ def main(
             )
 
     models = get_models(
-        cfg, valid_dataloaders, device=device, ignore_pred_layer=True
+        cfg,
+        valid_dataloaders,
+        device=device,
+        ignore_pred_layer=True,
+        datasets=DATASETS,
+        models_cls=MODELS,
     )
 
     datasets["y"] = get_y()

@@ -19,18 +19,18 @@ models:
 
   - diffpool-1:
       model: diffpool
-      cfg: experiments/configs/diffpool.yaml
+      cfg: experiments/configs/gin-virtual-diffpool.yaml
       pretrained_path: data/supervised/gin-virtual-diffpool/checkpoints/0/checkpoint.pt
       freeze: True
 
   - diffpool-2:
       model: diffpool
-      cfg: experiments/configs/diffpool.yaml
+      cfg: experiments/configs/gin-virtual-diffpool.yaml
       pretrained_path: data/supervised/gin-virtual-diffpool/checkpoints/1/checkpoint.pt
       freeze: True
 
   - diffpool-3:
       model: diffpool
-      cfg: experiments/configs/diffpool.yaml
+      cfg: experiments/configs/gin-virtual-diffpool.yaml
       pretrained_path: data/supervised/gin-virtual-diffpool/checkpoints/2/checkpoint.pt
       freeze: True

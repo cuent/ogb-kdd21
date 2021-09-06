@@ -1,6 +1,7 @@
 import os
 import pickle
 import random
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -101,7 +102,9 @@ def main(
             "test": {"y_true": y_ts_true, "y_pred": y_ts_pred},
         }
 
-    with open("data/predictions/predictions.pkl", "wb") as f:
+    output_path = Path("data/predictions/predictions.pkl")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "wb") as f:
         pickle.dump(obj=predictions, file=f)
 
 

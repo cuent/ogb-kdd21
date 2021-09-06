@@ -29,7 +29,7 @@ def pyg_train(model, device, loader, optimizer, gnn_name, loss_fn):
         optimizer.step()
 
 
-def pyg_eval(model, device, loader, evaluator, loss_fn):
+def pyg_eval(model, device, loader, evaluator, loss_fn=None):
     model.eval()
 
     loss_acc = 0
@@ -47,7 +47,8 @@ def pyg_eval(model, device, loader, evaluator, loss_fn):
         with torch.no_grad():
             pred = model(batch).view(-1)
 
-        loss_acc += loss_fn(pred, y).detach().cpu().item()
+        if loss_fn:
+            loss_acc += loss_fn(pred, y).detach().cpu().item()
         y_true.append(y.view(pred.shape).detach().cpu())
         y_pred.append(pred.detach().cpu())
 

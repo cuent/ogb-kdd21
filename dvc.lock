@@ -159,3 +159,16 @@ stages:
     - path: data/predictions/predictions.pkl
       md5: ad242590687590cb0b59c8018540dec8
       size: 182577245
+  node_types_fingerprint:
+    cmd: PYTHONPATH=. python3 experiments/scripts/error_groups/node_types_fingerprint.py
+    deps:
+    - path: data/predictions/error_groups.pkl
+      md5: 5902407caef1c6922cdf5706eb289c1a
+      size: 27409084
+    - path: experiments/scripts/error_groups/node_types_fingerprint.py
+      md5: b72053cbdaeb2b5d14f7e49634697f07
+      size: 2681
+    outs:
+    - path: data/predictions/fingerprints/node_types.png
+      md5: de22be2aa997ede5ef02a1eef12418ef
+      size: 83276

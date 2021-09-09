@@ -41,3 +41,11 @@ stages:
       - experiments/scripts/make_predictions.py
     outs:
       - data/predictions/predictions.pkl
+
+  node_types_fingerprint:
+    cmd: PYTHONPATH=. python3 experiments/scripts/error_groups/node_types_fingerprint.py
+    deps:
+      - experiments/scripts/error_groups/node_types_fingerprint.py
+      - data/predictions/error_groups.pkl
+    outs:
+      - data/predictions/fingerprints/node_types.png

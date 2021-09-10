@@ -82,6 +82,7 @@ def main(
     ) as f:
         pickle.dump(obj=idx_to_group, file=f)
 
+    split_idx["test"] = np.array([0])
     split_idx = {
         k: torch.from_numpy(v).to(dtype=torch.long)
         for k, v in split_idx.items()

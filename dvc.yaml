@@ -41,3 +41,13 @@ stages:
       - experiments/scripts/make_predictions.py
     outs:
       - data/predictions/predictions.pkl
+
+  get_representations:
+    cmd: PYTHONPATH=. python3 experiments/scripts/get_representations.py --config-path experiments/configs/make_predictions.yaml
+    deps:
+      - experiments/configs/make_predictions.yaml
+      - experiments/scripts/make_predictions.py
+    outs:
+      - data/predictions/representations.pkl
+      - data/predictions/error_group_split_idx.pkl
+      - data/predictions/error_group_split_idx_groups_mapping.pkl

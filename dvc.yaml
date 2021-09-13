@@ -47,6 +47,7 @@ stages:
     deps:
       - experiments/configs/make_predictions.yaml
       - experiments/scripts/make_predictions.py
+      - data/supervised
     outs:
       - data/predictions/representations.pkl
       - data/predictions/error_group_split_idx.pkl

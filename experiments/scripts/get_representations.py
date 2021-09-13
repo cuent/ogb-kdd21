@@ -74,7 +74,7 @@ def main(
     )
 
     split_idx, idx_to_group = get_split_idxs_from_error_groups()
-    pathlib.Path("data/representations").mkdir(parents=True, exist_ok=True)
+    pathlib.Path("data/predictions").mkdir(parents=True, exist_ok=True)
     with open("data/predictions/error_group_split_idx.pkl", "wb") as f:
         pickle.dump(obj=split_idx, file=f)
     with open(

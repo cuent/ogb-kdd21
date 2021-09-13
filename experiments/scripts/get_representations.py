@@ -74,11 +74,11 @@ def main(
     )
 
     split_idx, idx_to_group = get_split_idxs_from_error_groups()
-    pathlib.Path("data/predictions").mkdir(parents=True, exist_ok=True)
-    with open("data/predictions/error_group_split_idx.pkl", "wb") as f:
+    pathlib.Path("data/representations").mkdir(parents=True, exist_ok=True)
+    with open("data/representations/error_group_split_idx.pkl", "wb") as f:
         pickle.dump(obj=split_idx, file=f)
     with open(
-        "data/predictions/error_group_split_idx_groups_mapping.pkl", "wb"
+        "data/representations/error_group_split_idx_groups_mapping.pkl", "wb"
     ) as f:
         pickle.dump(obj=idx_to_group, file=f)
 
@@ -126,26 +126,28 @@ def main(
         datasets=DATASETS,
         models_cls=MODELS,
     )
-    predictions = {}
+    representations = {}
     for model_name, model in models.items():
         model_type = model_types_mapping[model_name]
         model_ds = DATASETS[model_type]["name"]
 
-        y_tr_pred, y_tr_true = DATASETS[model_type]["test_fn"](
-            model=model, device=device, loader=train_dataloaders[model_ds]
+        train_representations = DATASETS[model_type]["representations_fn"](
+            model=model, device=device, loader=train_dataloaders[model_ds],
+            representation_mode=True
         )
-        y_val_pred, y_val_true = DATASETS[model_type]["test_fn"](
-            model=model, device=device, loader=valid_dataloaders[model_ds]
+        valid_representations = DATASETS[model_type]["representations_fn"](
+            model=model, device=device, loader=valid_dataloaders[model_ds],
+            representation_mode=True
         )
-        predictions[model_name] = {
-            "train": y_tr_pred,
-            "valid": y_val_pred,
+        representations[model_name] = {
+            "train": train_representations,
+            "valid": valid_representations,
         }
 
     output_path = Path("data/predictions/representations.pkl")
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "wb") as f:
-        pickle.dump(obj=predictions, file=f)
+        pickle.dump(obj=representations, file=f)
 
 
 if __name__ == "__main__":

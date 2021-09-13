@@ -74,3 +74,22 @@ def dgl_test(model, device, loader):
     y_true = torch.cat(y_true, dim=0)
 
     return y_pred, y_true
+
+
+def dgl_get_representations(model, device, loader):
+    model.eval()
+    representations = []
+
+    for step, (bg, labels) in enumerate(tqdm(loader, desc="Iteration")):
+        bg = bg.to(device)
+        x = bg.ndata.pop("feat").to(device)
+        edge_attr = bg.edata.pop("feat").to(device)
+
+        with torch.no_grad():
+            pred = model(bg, x, edge_attr)
+
+        representations.append(pred.detach().cpu())
+
+    representations = torch.cat(representations, dim=0)
+
+    return representations

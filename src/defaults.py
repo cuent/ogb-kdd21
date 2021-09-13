@@ -11,8 +11,8 @@ from src.model_utils import (
     get_gin_virtual_model,
 )
 from src.models import LinearModel
-from src.training.dgl_training import dgl_eval, dgl_test
-from src.training.pyg import pyg_eval, pyg_test
+from src.training.dgl_training import dgl_eval, dgl_test, dgl_get_representations
+from src.training.pyg import pyg_eval, pyg_test, pyg_get_representations
 
 MODELS = {
     "diffpool": get_diffpool_model,
@@ -27,6 +27,7 @@ DATASETS = {
         "eval_fn": dgl_eval,
         "test_fn": dgl_test,
         "loader_fn": get_dgl_data_loaders,
+        "representations_fn": dgl_get_representations
     },
     "gin-virtual": {
         "name": "pyg",
@@ -34,6 +35,7 @@ DATASETS = {
         "eval_fn": pyg_eval,
         "test_fn": pyg_test,
         "loader_fn": get_tg_data_loaders,
+        "representations_fn": pyg_get_representations
     },
     "gin-virtual-bnn": {
         "name": "pyg",
@@ -41,6 +43,7 @@ DATASETS = {
         "eval_fn": pyg_eval,
         "test_fn": pyg_test,
         "loader_fn": get_tg_data_loaders,
+        "representations_fn": pyg_get_representations
     },
     "linear": {"name": "linear", "cls": LinearPCQM4MDataset},
 }

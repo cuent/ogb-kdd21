@@ -88,3 +88,23 @@ def pyg_test(model, device, loader):
     y_true = torch.cat(y_true, dim=0)
 
     return y_pred, y_true
+
+
+def pyg_get_representations(model, device, loader):
+    model.eval()
+    representations = []
+
+    for step, batch in enumerate(tqdm(loader, desc="Iteration")):
+        if not isinstance(batch, torch_geometric.data.batch.Batch):
+            batch = move_to(obj=batch, device=device)
+        else:
+            batch = batch.to(device)
+
+        with torch.no_grad():
+            batch_representations = model(batch)
+
+        representations.append(batch_representations.detach().cpu())
+
+    representations = torch.cat(batch_representations, dim=0)
+
+    return representations

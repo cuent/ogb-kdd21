@@ -75,10 +75,10 @@ def main(
 
     split_idx, idx_to_group = get_split_idxs_from_error_groups()
     pathlib.Path("data/representations").mkdir(parents=True, exist_ok=True)
-    with open("data/representations/error_group_split_idx.pkl", "wb") as f:
+    with open("data/predictions/error_group_split_idx.pkl", "wb") as f:
         pickle.dump(obj=split_idx, file=f)
     with open(
-        "data/representations/error_group_split_idx_groups_mapping.pkl", "wb"
+        "data/predictions/error_group_split_idx_groups_mapping.pkl", "wb"
     ) as f:
         pickle.dump(obj=idx_to_group, file=f)
 
@@ -146,7 +146,6 @@ def main(
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "wb") as f:
         pickle.dump(obj=representations, file=f)
-
 
 if __name__ == "__main__":
     typer.run(main)

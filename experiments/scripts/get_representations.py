@@ -3,7 +3,7 @@ import pathlib
 import pickle
 import random
 from pathlib import Path
-from typing import Tuple, Dict
+from typing import Dict, Tuple
 
 import numpy as np
 import pandas as pd
@@ -132,12 +132,10 @@ def main(
         model_ds = DATASETS[model_type]["name"]
 
         train_representations = DATASETS[model_type]["representations_fn"](
-            model=model, device=device, loader=train_dataloaders[model_ds],
-            representation_mode=True
+            model=model, device=device, loader=train_dataloaders[model_ds]
         )
         valid_representations = DATASETS[model_type]["representations_fn"](
-            model=model, device=device, loader=valid_dataloaders[model_ds],
-            representation_mode=True
+            model=model, device=device, loader=valid_dataloaders[model_ds]
         )
         representations[model_name] = {
             "train": train_representations,

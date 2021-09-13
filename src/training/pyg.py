@@ -105,6 +105,6 @@ def pyg_get_representations(model, device, loader):
 
         representations.append(batch_representations.detach().cpu())
 
-    representations = torch.cat(batch_representations, dim=0)
+    representations = torch.cat(representations, dim=0)
 
     return representations

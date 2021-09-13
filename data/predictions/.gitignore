@@ -1,2 +1,5 @@
 /predictions.pkl
 /error_groups.pkl
+/representations.pkl
+/error_group_split_idx.pkl
+/error_group_split_idx_groups_mapping.pkl

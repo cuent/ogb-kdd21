@@ -163,6 +163,10 @@ stages:
     cmd: PYTHONPATH=. python3 experiments/scripts/get_representations.py --config-path
       experiments/configs/make_predictions.yaml
     deps:
+    - path: data/supervised
+      md5: bc7b7e157f569902eab277fdb10bcd5d.dir
+      size: 527441890
+      nfiles: 19
     - path: experiments/configs/make_predictions.yaml
       md5: 79f9e0661b494827a360b8427eb52a0b
       size: 1188

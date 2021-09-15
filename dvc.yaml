@@ -34,27 +34,27 @@ stages:
       outs:
         - data/supervised/${item}/
 
-    train_supervised_error_group:
-      foreach:
-        - gin-virtual
-      do:
-        wdir: .
-        cmd: PYTHONPATH=. python3 experiments/scripts/train_supervised.py --model-name ${item} --config-path experiments/configs/${item}.yaml --checkpoint-dir data/supervised_error_group/${item}/checkpoints --save-test-dir data/supervised_error_group/${item}/submssion --metrics-path data/metrics/supervised_error_group/${item}/ --log-dir data/supervised_error_group/${item}/logs --split-idx-path data/dataset/pcqm4m_kddcup2021/most_error_group_split_idx.pt
-        params:
-          - experiments/configs/${item}.yaml:
-              - args
-              - learning_args
-              - step_lr
-              - data_loader_args
-              - dataset
-              - reg
-        deps:
-          - data/dataset/pcqm4m_kddcup2021/processed/
-        metrics:
-          - data/metrics/supervised/${item}/all.json:
-              cache: false
-        outs:
-          - data/supervised_error_group/${item}/
+  train_supervised_error_group:
+    foreach:
+      - gin-virtual
+    do:
+      wdir: .
+      cmd: PYTHONPATH=. python3 experiments/scripts/train_supervised.py --model-name ${item} --config-path experiments/configs/${item}.yaml --checkpoint-dir data/supervised_error_group/${item}/checkpoints --save-test-dir data/supervised_error_group/${item}/submssion --metrics-path data/metrics/supervised_error_group/${item}/ --log-dir data/supervised_error_group/${item}/logs --split-idx-path data/dataset/pcqm4m_kddcup2021/most_error_group_split_idx.pt
+      params:
+        - experiments/configs/${item}.yaml:
+            - args
+            - learning_args
+            - step_lr
+            - data_loader_args
+            - dataset
+            - reg
+      deps:
+        - data/dataset/pcqm4m_kddcup2021/processed/
+      metrics:
+        - data/metrics/supervised_error_group/${item}/all.json:
+            cache: false
+      outs:
+        - data/supervised_error_group/${item}/
 
 
   make_predictions:

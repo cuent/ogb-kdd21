@@ -75,6 +75,10 @@ def main(
     ),
     metrics_path: str = typer.Option("", help="metrics path"),
     pyg_train_subset: bool = typer.Option(False, help="Train Subset for PyG"),
+    split_idx_path: str = typer.Option(
+        "data/dataset/pcqm4m_kddcup2021/split_dict.pt",
+        help="Split dict location",
+    ),
 ):
     device = int(os.getenv("CUDA_DEVICE", "0"))
     num_workers = int(os.getenv("NUM_WORKERS", "0"))
@@ -94,8 +98,11 @@ def main(
     dataset_cls = src.utils.get_module_from_str(cfg["dataset"])
     dataset = load_dataset(dataset_cls, smiles2graph)
 
-    split_idx = dataset.get_idx_split()
-
+    split_idx = torch.load(split_idx_path)
+    split_idx = {
+        k: torch.from_numpy(v).to(dtype=torch.long)
+        for k, v in split_idx.items()
+    }
     # automatic evaluator. takes dataset name as input
     evaluator = PCQM4MEvaluator()
 

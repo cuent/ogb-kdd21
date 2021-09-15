@@ -147,5 +147,6 @@ def main(
     with open(output_path, "wb") as f:
         pickle.dump(obj=representations, file=f)
 
+
 if __name__ == "__main__":
     typer.run(main)

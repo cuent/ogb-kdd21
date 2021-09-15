@@ -183,3 +183,37 @@ stages:
     - path: data/predictions/representations.pkl
       md5: 4d16932316e7af868c80476a2a7c7e49
       size: 302403931
+  train_supervised@gin-virtual-bnn:
+    cmd: PYTHONPATH=. python3 experiments/scripts/train_supervised.py --model-name
+      gin-virtual-bnn --config-path experiments/configs/gin-virtual-bnn.yaml --checkpoint-dir
+      data/supervised/gin-virtual-bnn/checkpoints --save-test-dir data/supervised/gin-virtual-bnn/submssion
+      --metrics-path data/metrics/supervised/gin-virtual-bnn/ --log-dir data/supervised/gin-virtual-bnn/logs
+    deps:
+    - path: data/dataset/pcqm4m_kddcup2021/processed/
+      md5: e814a1e139a7b201e836ddc3575b32ef.dir
+      size: 20348281406
+      nfiles: 3
+    params:
+      experiments/configs/gin-virtual-bnn.yaml:
+        args:
+          graph_pooling: sum
+          drop_ratio: 0
+          num_layers: 5
+          emb_dim: 600
+        data_loader_args:
+          batch_size: 1024
+        dataset: ogb.lsc.PygPCQM4MDataset
+        learning_args:
+          epochs: 30
+        reg: torch.nn.L1Loss
+        step_lr:
+          step_size: 300
+          gamma: 0.25
+    outs:
+    - path: data/metrics/supervised/gin-virtual-bnn/all.json
+      md5: 7c2d8d4e96176eec8168ed26eed07eac
+      size: 1465
+    - path: data/supervised/gin-virtual-bnn/
+      md5: 4531909134901612d346efc1545a6e72.dir
+      size: 249806979
+      nfiles: 9

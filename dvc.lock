@@ -164,9 +164,9 @@ stages:
       experiments/configs/make_predictions.yaml
     deps:
     - path: data/supervised
-      md5: bc7b7e157f569902eab277fdb10bcd5d.dir
-      size: 527441890
-      nfiles: 19
+      md5: 48da974467fae2281bc6b2bed46540dc.dir
+      size: 777248886
+      nfiles: 28
     - path: experiments/configs/make_predictions.yaml
       md5: 79f9e0661b494827a360b8427eb52a0b
       size: 1188
@@ -216,4 +216,39 @@ stages:
     - path: data/supervised/gin-virtual-bnn/
       md5: 4531909134901612d346efc1545a6e72.dir
       size: 249806979
+      nfiles: 9
+  train_supervised_error_group@gin-virtual:
+    cmd: PYTHONPATH=. python3 experiments/scripts/train_supervised.py --model-name
+      gin-virtual --config-path experiments/configs/gin-virtual.yaml --checkpoint-dir
+      data/supervised_error_group/gin-virtual/checkpoints --save-test-dir data/supervised_error_group/gin-virtual/submssion
+      --metrics-path data/metrics/supervised_error_group/gin-virtual/ --log-dir data/supervised_error_group/gin-virtual/logs
+      --split-idx-path data/dataset/pcqm4m_kddcup2021/most_error_group_split_idx.pt
+    deps:
+    - path: data/dataset/pcqm4m_kddcup2021/processed/
+      md5: e814a1e139a7b201e836ddc3575b32ef.dir
+      size: 20348281406
+      nfiles: 3
+    params:
+      experiments/configs/gin-virtual.yaml:
+        args:
+          graph_pooling: sum
+          drop_ratio: 0
+          num_layers: 5
+          emb_dim: 600
+        data_loader_args:
+          batch_size: 1024
+        dataset: ogb.lsc.PygPCQM4MDataset
+        learning_args:
+          epochs: 30
+        reg: torch.nn.L1Loss
+        step_lr:
+          step_size: 300
+          gamma: 0.25
+    outs:
+    - path: data/metrics/supervised_error_group/gin-virtual/all.json
+      md5: 1e364a5ede89c60f22b3ab8f21621acb
+      size: 1458
+    - path: data/supervised_error_group/gin-virtual/
+      md5: dd0eb00f066dff7becf928788db7900f.dir
+      size: 244125228
       nfiles: 9
